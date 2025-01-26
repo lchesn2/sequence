@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>iThink i'M fAMoUS enOUGh</title><!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sequence</title>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+        <style>
+            body {
+                font-family: 'Arial', sans-serif;
+                margin: 20px;
+                padding: 0;
+                background-color: #f5f5f5;
+                color: #333;
+            }
+
+            h2 {
+                color: #3498db;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-top: 20px;
+                background-color: #fff;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            th, td {
+                border: 1px solid #ddd;
+                padding: 12px;
+                text-align: left;
+            }
+
+            th {
+                background-color: #3498db;
+                color: #fff;
+            }
+
+            .logout-btn, .change-password-btn {
+                float: right;
+                margin-top: 10px;
+                margin-right: 10px;
+                padding: 8px 12px;
+                background-color: #3498db;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+
+    <div style="max-width: 800px; margin: 0 auto;">
+
+
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        <a href="{{ url_for('dashboard') }}" class="change-password-btn">Home</a>
+        <h5 style="text-align: left;">ready player1</h5>
+
+        <h2 style="text-align: center;">Top Finishers</h2>
+        <table id="myTable2" class="display">
+            <!-- Your table content here dataframe0block=df0,dataframe1assist=df1,dataframe2seq=df2,dataframe3               -->
+            {{ dataframe2seq.to_html(classes='table', index=False) | safe }}
+        </table>
+
+        <h2 style="text-align: center;">Top Blocks</h2>
+        <table id="myTable3" class="display">
+            <!-- Your table content here -->
+            {{ dataframe0block.to_html(classes='table', index=False) | safe }}
+        </table>
+
+        <h2 style="text-align: center;">Top Assists</h2>
+        <table id="myTable3" class="display">
+            <!-- Your table content here -->
+            {{ dataframe1assist.to_html(classes='table', index=False) | safe }}
+        </table>
+
+        <!--<h2 style="text-align: center;">Top Cards</h2>
+        <table id="myTable3" class="display">
+            {{ dataframe3.to_html(classes='table', index=False) | safe }}
+        </table>-->
+
+
+
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+
+
+            $('#myTable').DataTable({
+                searching: true, // Enable search functionality
+
+
+
+
+
+            });
+        });
+    </script>
+
+
+
+
+    </body>
+    </html>
+
+</head>
+<body>
+
+</body>
+</html>

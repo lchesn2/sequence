@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sequence</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+
+
+
+
+    <style>
+
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h2 {
+            color: #3498db;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .logout-btn, .change-password-btn {
+            float: right;
+            margin-top: 10px;
+            margin-right: 10px;
+            padding: 8px 12px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+.main-container {
+    position: relative; /* So we can position the buttons inside */
+    padding-top: 50px; /* Space for buttons */
+    background-color: #f4f4f4;
+}
+
+        .enterdata-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 200px; /* Set a maximum width for larger screens */
+    width: 100%; /* Make it responsive */
+    text-align: center;
+    margin: 0 auto; /* Center the container */
+}
+
+
+        .enterdata-container h2 {
+            color: #333;
+        }
+
+        .enterdata-form {
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group input .form-group select{
+            padding: 20px;
+            float: right;
+            width: 73%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-group button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+.top-buttons {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+.top-buttons button {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.top-buttons button:hover {
+    background-color: #4caf50;
+}
+
+
+
+
+    </style>
+</head>
+
+
+
+<body>
+
+<div style="max-width: 800px; margin: 0 auto;">
+
+
+    <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    <a href="{{ url_for('halloffame') }}" class="change-password-btn">Hall Of Fame</a>
+    <h5 style="text-align: left;">just finish it {{  name }}</h5>
+
+    <h2 style="text-align: center;">sequence data entry</h2>
+<div >
+    <form action="submit_form" method="post">
+
+        <div >
+        <label for="date">Date:</label><br>
+        <input type="text" id="date" name="date" ></div>
+        <br>
+        <div>
+        <label for="time">Time:</label><br>
+        <input type="text" id="time" name="time" ></div>
+        <!--<input type="text" id="time" name="time" value="{{time}}">-->
+
+        <!--<div >    <br>
+        <label for="team">Team:</label><br>
+
+        <select name="teamwin" id="teamwin">
+            <option value="Blue">Blue</option>
+            <option value="Green">Green</option>
+            <option value="Red">Red</option>
+        </select>
+
+</div>    <br>-->
+<div >
+
+
+        <label for="name">Name:</label><br>
+
+        <select name="name" id="name">
+            <option value="Andy">Andy</option>
+            <option value="Behring">Behring</option>
+            <option value="Brian">Brian</option>
+            <option value="Daniel">Daniel</option>
+            <option value="Hannah">Hannah</option>
+            <option value="Howard">Howard</option>
+            <option value="Ghost">Ghost</option>
+            <option value="Jose">Jose</option>
+            <option value="Jaemo">Jaemo</option>
+            <option value="Kenji">Kenji</option>
+            <option value="Larah">Larah</option>
+            <option value="Maya">Maya</option>
+            <option value="Mel">Mel</option>
+            <option value="Nate">Nate</option>
+            <option value="Nishant">Nishant</option>
+            <option value="Paul">Paul</option>
+            <option value="Poonam">Poonam</option>
+            <option value="Russel">Russel</option>
+        </select>
+
+</div>    <br>
+
+<!--
+<div>
+
+        <label for="card">Card:</label><br>
+
+        <select name="card" id="card">
+            <option value="2♠">2♠</option>
+            <option value="2♥">2♥ </option>
+            <option value="2♦">2♦ </option>
+            <option value="2♣">2♣ </option>
+            <option value="3♠">3♠</option>
+            <option value="3♥">3♥ </option>
+            <option value="3♦">3♦ </option>
+            <option value="3♣">3♣ </option>
+            <option value="4♠">4♠</option>
+            <option value="4♥">4♥ </option>
+            <option value="4♦">4♦ </option>
+            <option value="4♣">4♣ </option>
+            <option value="5♠">5♠</option>
+            <option value="5♥">5♥ </option>
+            <option value="5♦">5♦ </option>
+            <option value="5♣">5♣ </option>
+            <option value="6♠">6♠</option>
+            <option value="6♥">6♥ </option>
+            <option value="6♦">6♦ </option>
+            <option value="6♣">6♣ </option>
+            <option value="7♠">7♠</option>
+            <option value="7♥">7♥ </option>
+            <option value="7♦">7♦ </option>
+            <option value="7♣">7♣ </option>
+            <option value="8♠">8♠</option>
+            <option value="8♥">8♥ </option>
+            <option value="8♦">8♦ </option>
+            <option value="8♣">8♣ </option>
+            <option value="9♠">9♠</option>
+            <option value="9♥">9♥ </option>
+            <option value="9♦">9♦ </option>
+            <option value="9♣">9♣ </option>
+            <option value="10♠">10♠</option>
+            <option value="10♥">10♥ </option>
+            <option value="10♦">10♦ </option>
+            <option value="10♣">10♣ </option>
+            <option value="J♦">J♦ </option>
+            <option value="J♣">J♣ </option>
+            <option value="J♥">J♥ </option>
+            <option value="J♠">J♠</option>
+            <option value="Q♠">Q♠</option>
+            <option value="Q♥">Q♥ </option>
+            <option value="Q♦">Q♦ </option>
+            <option value="Q♣">Q♣ </option>
+            <option value="K♠">K♠</option>
+            <option value="K♥">K♥ </option>
+            <option value="K♦">K♦ </option>
+            <option value="K♣">K♣ </option>
+            <option value="A♠">A♠</option>
+            <option value="A♥">A♥ </option>
+            <option value="A♦">A♦ </option>
+            <option value="A♣">A♣ </option>
+
+        </select>
+
+</div>    <br>-->
+<div>
+        <label for="type">Type:</label><br>
+
+        <select name="type" id="type">
+            <option value="Assist">Assist</option>
+            <option value="Block">Block</option>
+            <option value="Sequence">Sequence</option>
+
+
+
+        </select>
+</div><br>
+<div>
+        <input type="submit" value="Submit"></div>
+    </form>
+    </div>    <br>
+    <h2 style="text-align: center;">Last Finish: {{nxtTurn}}</h2>
+    <br><br>
+    <h2 style="text-align: center;">Play By Play</h2>
+    <table id="lancelot">
+        <thead>
+        <tr>
+            {% for header in headings %}
+            <th> {{header }} </th>
+            {% endfor %}
+        </tr>
+        </thead>
+
+        <tbody id="lancelot_data">
+        {% for row in data %}
+        <!--<tr data-date="{{ row[0] }}" data-time="{{ row[1] }}" data-team="{{ row[2] }}"   data-name="{{ row[3] }}"    data-card="{{ row[4] }}"   data-type="{{ row[5] }}">-->
+        <tr data-date="{{ row[0] }}" data-time="{{ row[1] }}" data-name="{{ row[2] }}"   data-type="{{ row[3] }}"    >
+            {% for cell in row %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+ <!-- removed from here -->
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+
+<script>
+    // Function to get the current time
+    function getCurrentTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+    }
+
+    // Populate the input field with the current date and time
+    document.getElementById('time').value = getCurrentTime();
+</script>
+<script>
+    // Function to get the current date
+    function getCurrentDate() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const day = String(now.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    }
+
+    // Populate the input field with the current date and time
+    document.getElementById('date').value = getCurrentDate();
+</script>
+
+<script>
+    // Function to get the current date and time
+    function getCurrentDateTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
+    // Populate the input field with the current date and time
+    document.getElementById('datetime').value = getCurrentDateTime();
+</script>
+
+<script>
+        function changeTheme(theme) {
+        document.body.className = theme;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var table = document.getElementById('lancelot');
+        console.log(table)
+        console.log('got table')
+        table.addEventListener('click', function(event) {
+            console.log("in click")
+            var clickedRow = event.target.closest('tr');
+            var cells=clickedRow.querySelectorAll('td');
+            var date= cells[0].innerHTML;
+            var time=cells[1].innerHTML;
+            var name=cells[2].innerHTML;
+            var type= cells[3].innerHTML;
+
+
+            axios.post('/send-data', {  date: date, time: time,  name: name,  type: type   })
+                .then(function(response) {
+                    console.log('Data sent successfully:', response.data);
+
+                })
+                .catch(function(error) {
+                    console.error('Error sending data:', error);
+
+                });
+        });
+    });
+
+</script>
+
+<script>
+    $(document).ready(function() {
+
+
+        $('#lancelot').DataTable({
+            searching: true, // Enable search functionality
+
+
+
+
+
+        });
+    });
+</script>
+
+
+
+
+</body>
+</html>
