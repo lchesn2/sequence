@@ -1,4 +1,4 @@
-from flask import Flask, flash, render_template, redirect, url_for, request, jsonify
+from flask import Flask, flash, render_template, redirect, url_for, request
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user, UserMixin
 import datetime
 import pytz
@@ -55,22 +55,6 @@ def ensure_csv_exists(filename, default_columns):
     """Ensure CSV file exists with proper headers"""
     if not os.path.exists(filename):
         pd.DataFrame(columns=default_columns).to_csv(filename, index=False)
-
-def gen_team_df():
-    """Generate team dataframe with error handling, filtered from 2025-06-25 onwards"""
-    try:
-        ensure_csv_exists('./dailyteams.csv', ['name', 'team', 'date'])
-        team_df = pd.read_csv('./dailyteams.csv')
-        team_df['date'] = pd.to_datetime(team_df['date'], errors='coerce')
-
-        # Filter data from 2025-06-25 onwards
-        cutoff_date = pd.to_datetime('2025-06-25')
-        team_df = team_df[team_df['date'] >= cutoff_date]
-
-        return team_df.sort_values(by=['team', 'name'], ascending=[True, True]).reset_index(drop=True)
-    except Exception as e:
-        print(f"Error loading team data: {e}")
-        return pd.DataFrame(columns=['name', 'team', 'date'])
 
 def gen_all_game_df():
     """Generate games dataframe with error handling, filtered from 2025-06-25 onwards"""
@@ -142,6 +126,14 @@ def get_available_quarters(df):
     
     return quarters
 
+def load_games_df():
+    """Load games CSV, parse dates, apply cutoff filter. Shared by all routes that read historical data."""
+    ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type'])
+    df = pd.read_csv('./games.csv')
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    cutoff_date = pd.to_datetime('2025-06-25')
+    return df[df['date'] >= cutoff_date]
+
 def calculate_quarterly_stats(df, quarter='2025Q3'):
     """Calculate statistics for a specific quarter or all time"""
     if df.empty:
@@ -174,8 +166,7 @@ def calculate_quarterly_stats(df, quarter='2025Q3'):
     
     return stats
 
-# Initialize global dataframes
-team_df = gen_team_df()
+# Initialize global dataframe
 game_df = gen_all_game_df()
 
 @app.route('/')
@@ -202,35 +193,23 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    global game_df, team_df
+    global game_df
 
     try:
         # Get current date in PST timezone
         pst = pytz.timezone('US/Pacific')
         today = pd.to_datetime(datetime.datetime.now(pst).date())
 
-        # Filter today's teams
-        team_df2 = team_df[team_df['date'].dt.date == today.date()]
-        team_df2 = team_df2.sort_values(by=['name', 'date']).drop_duplicates(subset=['name'], keep='last')
-        team_df2 = team_df2.sort_values(by=['team', 'name'], ascending=[True, True]).reset_index(drop=True)
-
         # Filter today's games
-        todays_games = game_df[game_df['date'].dt.date == today.date()][['date', 'time', 'name', 'type']]
-
-        # Convert time column
-        if not todays_games.empty:
-            todays_games['time'] = pd.to_datetime(todays_games['time'], format='%H:%M:%S').dt.time
+        todays_games = game_df[game_df['date'].dt.date == today.date()][['date', 'name', 'type']]
 
         # Find the most recent player across all game types
         last_player = get_last_player(game_df)
 
-        # Prepare data for templates
-        headings = todays_games.columns.tolist()
         data = todays_games.values.tolist()
 
         if current_user.role == 'admin':
             return render_template('admin.html',
-                                 headings=headings,
                                  data=data,
                                  nxtTurn=last_player,
                                  name=current_user.username)
@@ -286,57 +265,12 @@ def submit_form():
 
     return redirect(url_for('dashboard'))
 
-@app.route('/submit_form_team', methods=['POST'])
-@login_required
-def submit_form_team():
-    global team_df
-
-    try:
-        team = request.form.get('team', '')
-        date = request.form.get('datetime', '')
-
-        # Validate input
-        if not all([team, date]):
-            flash('Team and date are required', 'error')
-            return redirect(url_for('dashboard'))
-
-        new_row = {
-            'name': current_user.username,
-            'team': team,
-            'date': date
-        }
-
-        with lock:
-            team_df = pd.concat([team_df, pd.DataFrame([new_row])], ignore_index=True)
-            team_df = team_df.sort_values(by=['name', 'date'])
-            team_df.to_csv('./dailyteams.csv', index=False)
-
-            # Refresh dataframe
-            team_df = gen_team_df()
-
-        flash('Team assignment updated successfully!', 'success')
-    except Exception as e:
-        flash(f'Error updating team: {str(e)}', 'error')
-        print(f"Submit team error: {e}")
-
-    return redirect(url_for('dashboard'))
-
 @app.route('/halloffame')
 @login_required
 def halloffame():
     try:
-        ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type'])
-        df = pd.read_csv('./games.csv')
-        df['date'] = pd.to_datetime(df['date'], errors='coerce')
-
-        # Filter data from 2025-06-25 onwards
-        cutoff_date = pd.to_datetime('2025-06-25')
-        df = df[df['date'] >= cutoff_date]
-
-        # Get available quarters from the data
+        df = load_games_df()
         available_quarters = get_available_quarters(df)
-        
-        # Get selected quarter from query parameter, default to most recent quarter
         default_quarter = available_quarters[-1] if available_quarters else '2025Q3'
         selected_quarter = request.args.get('quarter', default_quarter)
 
@@ -382,13 +316,7 @@ def halloffame():
 @login_required
 def hallofshame():
     try:
-        ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type'])
-        df = pd.read_csv('./games.csv')
-        df['date'] = pd.to_datetime(df['date'], errors='coerce')
-
-        cutoff_date = pd.to_datetime('2025-06-25')
-        df = df[df['date'] >= cutoff_date]
-
+        df = load_games_df()
         available_quarters = get_available_quarters(df)
 
         default_quarter = available_quarters[-1] if available_quarters else '2025Q3'
@@ -401,20 +329,6 @@ def hallofshame():
         flash(f'Error loading hall of shame: {str(e)}', 'error')
         print(f"Hall of shame error: {e}")
         return redirect(url_for('dashboard'))
-
-@app.route('/send-data', methods=['POST'])
-@login_required
-def send_data():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No data received'}), 400
-
-        # Process data
-        return jsonify({'success': True, 'message': 'Data processed successfully'})
-    except Exception as e:
-        print(f"Send data error: {e}")
-        return jsonify({'error': str(e)}), 500
 
 @app.route('/logout')
 @login_required

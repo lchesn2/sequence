@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admins Only</title>
+    <title>Admin Dashboard - Sequence Game</title>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -111,19 +111,19 @@
                         </thead>
                         <tbody id="lancelot_data">
                             {% for row in data %}
-                            <tr data-date="{{ row[0] }}" data-time="{{ row[1] }}" data-name="{{ row[2] }}" data-type="{{ row[3] }}">
+                            <tr>
                                 <td>{{ row[0] }}</td>
-                                <td><strong>{{ row[2] }}</strong></td>
+                                <td><strong>{{ row[1] }}</strong></td>
                                 <td>
-                                    <span class="type-badge type-{{ row[3].lower() }}">
-                                        {% if row[3] == 'Sequence' %}
-                                            <i class="fas fa-crown"></i>
-                                        {% elif row[3] == 'Assist' %}
-                                            <i class="fas fa-handshake"></i>
-                                        {% elif row[3] == 'Block' %}
-                                            <i class="fas fa-shield-alt"></i>
+                                    <span class="type-badge type-{{ row[2].lower() }}">
+                                        {% if row[2] == 'Sequence' %}
+                                            <i class="fas fa-chess-queen"></i>
+                                        {% elif row[2] == 'Assist' %}
+                                            <i class="fas fa-chess-rook"></i>
+                                        {% elif row[2] == 'Block' %}
+                                            <i class="fas fa-chess-bishop"></i>
                                         {% endif %}
-                                        {{ row[3] }}
+                                        {{ row[2] }}
                                     </span>
                                 </td>
                             </tr>
@@ -139,7 +139,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
 
     <script>
         function getCurrentTime() {
@@ -181,24 +180,6 @@
                         previous: "Previous"
                     }
                 }
-            });
-
-            // Row click — use data attributes so indices don't matter
-            $('#lancelot tbody').on('click', 'tr', function() {
-                $(this).toggleClass('selected');
-
-                axios.post('/send-data', {
-                    date: $(this).data('date'),
-                    time: $(this).data('time'),
-                    name: $(this).data('name'),
-                    type: $(this).data('type')
-                })
-                .then(function(response) {
-                    console.log('Data sent successfully:', response.data);
-                })
-                .catch(function(error) {
-                    console.error('Error sending data:', error);
-                });
             });
 
             $('form').on('submit', function() {

@@ -15,11 +15,14 @@
                 <a href="{{ url_for('dashboard') }}" class="nav-btn">
                     <i class="fas fa-home"></i> Home
                 </a>
+                <a href="{{ url_for('hallofshame') }}" class="nav-btn">
+                        <i class="fas fa-chess-pawn"></i> Hall of Shame
+                </a>
                 <a href="{{ url_for('logout') }}" class="nav-btn">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
-            <h1><i class="fas fa-trophy"></i> Hall of Fame</h1>
+            <h1><i class="fas fa-chess-queen"></i> Hall of Fame</h1>
             <p class="subtitle">Top 3 per category</p>
         </div>
 
@@ -63,7 +66,7 @@
                         <!-- Sequence -->
                         {% if seq is defined and not seq.empty %}
                         <tr class="category-row">
-                            <td colspan="3"><i class="fas fa-crown"></i> Sequence</td>
+                            <td colspan="3"><i class="fas fa-chess-queen"></i> Sequence</td>
                         </tr>
                         {% for index, row in seq.head(3).iterrows() %}
                         <tr class="data-row">
@@ -77,7 +80,7 @@
                         <!-- Blocks -->
                         {% if blk is defined and not blk.empty %}
                         <tr class="category-row">
-                            <td colspan="3"><i class="fas fa-shield-alt"></i> Blocks</td>
+                            <td colspan="3"><i class="fas fa-chess-bishop"></i> Blocks</td>
                         </tr>
                         {% for index, row in blk.head(3).iterrows() %}
                         <tr class="data-row">
@@ -91,7 +94,7 @@
                         <!-- Assists -->
                         {% if ast is defined and not ast.empty %}
                         <tr class="category-row">
-                            <td colspan="3"><i class="fas fa-handshake"></i> Assists</td>
+                            <td colspan="3"><i class="fas fa-chess-knight"></i> Assists</td>
                         </tr>
                         {% for index, row in ast.head(3).iterrows() %}
                         <tr class="data-row">
@@ -107,7 +110,7 @@
             {% else %}
             <div class="table-container">
                 <div class="empty-state">
-                    <i class="fas fa-trophy"></i>
+                    <i class="fas fa-queen"></i>
                     <h3>No data available</h3>
                     <p>No entries recorded for this period</p>
                 </div>

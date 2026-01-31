@@ -256,10 +256,6 @@ body {
     cursor: pointer;
 }
 
-.table tbody tr.selected {
-    background: rgba(201, 169, 97, 0.1);
-    border-left: 3px solid var(--accent-gold);
-}
 
 /* --- Type badges --- */
 .type-badge {
