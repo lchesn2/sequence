@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hall of Fame - Sequence Game</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --accent-color: #fd79a8;
+            --success-color: #00b894;
+            --warning-color: #fdcb6e;
+            --dark-color: #2d3436;
+            --light-color: #f8f9fa;
+            --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gradient-bg);
+            min-height: 100vh;
+            color: var(--dark-color);
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .nav-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .stats-section {
+            margin-bottom: 50px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .section-header i {
+            font-size: 2rem;
+            margin-right: 15px;
+            color: var(--primary-color);
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .table {
+            margin: 0;
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+            padding: 20px 15px;
+            font-size: 0.9rem;
+        }
+
+        .table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-color: rgba(0, 0, 0, 0.05);
+            font-weight: 500;
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.05), rgba(162, 155, 254, 0.05));
+            transform: scale(1.01);
+            transition: all 0.3s ease;
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: white;
+        }
+
+        .rank-1 { background: linear-gradient(135deg, #ffd700, #ffed4e); color: var(--dark-color); }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); color: var(--dark-color); }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32, #daa520); }
+        .rank-default { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); }
+
+        .score-badge {
+            background: linear-gradient(135deg, var(--success-color), #55a3ff);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .dataTables_wrapper {
+            padding: 0;
+        }
+
+        .dataTables_length,
+        .dataTables_filter {
+            margin-bottom: 20px;
+        }
+
+        .dataTables_filter input {
+            border-radius: 25px;
+            border: 2px solid var(--primary-color);
+            padding: 8px 15px;
+            margin-left: 10px;
+        }
+
+        .dataTables_length select {
+            border-radius: 10px;
+            border: 2px solid var(--primary-color);
+            padding: 5px 10px;
+            margin: 0 10px;
+        }
+
+        .dataTables_paginate .paginate_button {
+            border-radius: 10px !important;
+            margin: 0 2px !important;
+        }
+
+        .dataTables_paginate .paginate_button.current {
+            background: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .nav-buttons {
+                position: static;
+                justify-content: center;
+                margin-top: 20px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .section-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .trophy-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div class="nav-buttons">
+                <a href="{{ url_for('dashboard') }}" class="nav-btn">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="{{ url_for('logout') }}" class="nav-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+            <h1><i class="fas fa-trophy trophy-animation"></i> Hall of Fame</h1>
+            <p class="subtitle">Champions of the Sequence Game</p>
+        </div>
+
+        <div class="content">
+            <!-- Top Sequence Finishers -->
+            <div class="stats-section">
+                <div class="section-header">
+                    <i class="fas fa-crown"></i>
+                    <h2>Top Sequence Finishers</h2>
+                </div>
+                <div class="table-container">
+                    {% if dataframe2seq is defined and not dataframe2seq.empty %}
+                        <table class="table" id="sequenceTable">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Player</th>
+                                    <th>Total Finishes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for index, row in dataframe2seq.iterrows() %}
+                                <tr>
+                                    <td>
+                                        <span class="rank-badge {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% else %}rank-default{% endif %}">
+                                            {{ loop.index }}
+                                        </span>
+                                    </td>
+                                    <td>{{ row['name'] }}</td>
+                                    <td><span class="score-badge">{{ row['TotalFinishes'] }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-trophy"></i>
+                            <h3>No sequence data available</h3>
+                            <p>Start playing to see the leaderboard!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Top Blocks -->
+            <div class="stats-section">
+                <div class="section-header">
+                    <i class="fas fa-shield-alt"></i>
+                    <h2>Top Blocks</h2>
+                </div>
+                <div class="table-container">
+                    {% if dataframe0block is defined and not dataframe0block.empty %}
+                        <table class="table" id="blocksTable">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Player</th>
+                                    <th>Total Blocks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for index, row in dataframe0block.iterrows() %}
+                                <tr>
+                                    <td>
+                                        <span class="rank-badge {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% else %}rank-default{% endif %}">
+                                            {{ loop.index }}
+                                        </span>
+                                    </td>
+                                    <td>{{ row['name'] }}</td>
+                                    <td><span class="score-badge">{{ row['TotalFinishes'] }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-shield-alt"></i>
+                            <h3>No block data available</h3>
+                            <p>Start playing to see the leaderboard!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Top Assists -->
+            <div class="stats-section">
+                <div class="section-header">
+                    <i class="fas fa-hands-helping"></i>
+                    <h2>Top Assists</h2>
+                </div>
+                <div class="table-container">
+                    {% if dataframe1assist is defined and not dataframe1assist.empty %}
+                        <table class="table" id="assistsTable">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Player</th>
+                                    <th>Total Assists</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for index, row in dataframe1assist.iterrows() %}
+                                <tr>
+                                    <td>
+                                        <span class="rank-badge {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% else %}rank-default{% endif %}">
+                                            {{ loop.index }}
+                                        </span>
+                                    </td>
+                                    <td>{{ row['name'] }}</td>
+                                    <td><span class="score-badge">{{ row['TotalFinishes'] }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-hands-helping"></i>
+                            <h3>No assist data available</h3>
+                            <p>Start playing to see the leaderboard!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTables for all tables
+            $('.table').DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[2, 'desc']], // Sort by total finishes descending
+                language: {
+                    search: "Search players:",
+                    lengthMenu: "Show _MENU_ players per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ players",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                }
+            });
+
+            // Add smooth scrolling for better UX
+            $('a[href^="#"]').on('click', function(event) {
+                var target = $(this.getAttribute('href'));
+                if( target.length ) {
+                    event.preventDefault();
+                    $('html, body').stop().animate({
+                        scrollTop: target.offset().top - 100
+                    }, 1000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
