@@ -1,4 +1,4 @@
-from flask import Flask, flash, session, render_template, redirect, url_for, request, jsonify
+from flask import Flask, flash, render_template, redirect, url_for, request, jsonify
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user, UserMixin
 import datetime
 import pytz
@@ -6,7 +6,6 @@ import pandas as pd
 import secrets
 import os
 from threading import Lock
-from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
@@ -33,14 +32,13 @@ def load_user(user_id):
         return User(user_id, users[user_id]['role'])
     return None
 
-# User database (in production, use a proper database)
 users = {
     'Larah': {'password': 'newton', 'role': 'admin'},
-    'John': {'password': 'joh', 'role': 'admin'},
-    'Adam': {'password': 'ada', 'role': 'admin'},
-    'Behring': {'password': 'beh', 'role': 'admin'},
-    'Daniel': {'password': 'dan', 'role': 'admin'},
-    'Howard': {'password': 'how', 'role': 'admin'},
+    'John': {'password': 'joh', 'role': 'user'},
+    'Adam': {'password': 'ada', 'role': 'user'},
+    'Behring': {'password': 'beh', 'role': 'user'},
+    'Daniel': {'password': 'dan', 'role': 'user'},
+    'Howard': {'password': 'how', 'role': 'user'},
     'Jose': {'password': 'jos', 'role': 'user'},
     'Jaemo': {'password': 'jae', 'role': 'user'},
     'Kenji': {'password': 'ken', 'role': 'admin'},
@@ -48,8 +46,8 @@ users = {
     'Nishant': {'password': 'nis', 'role': 'admin'},
     'Edward': {'password': 'edw', 'role': 'admin'},
     'Pratishta': {'password': 'pra', 'role': 'admin'},
-    'Russell': {'password': 'rus', 'role': 'admin'},
-    'Mel': {'password': 'mel', 'role': 'admin'},
+    'Russell': {'password': 'rus', 'role': 'user'},
+    'Mel': {'password': 'mel', 'role': 'user'},
     'Choi':{'password': 'cho', 'role':'admin'}
 }
 
@@ -90,47 +88,95 @@ def gen_all_game_df():
         print(f"Error loading game data: {e}")
         return pd.DataFrame(columns=['date', 'time', 'team', 'name', 'card', 'type'])
 
-def daily_team_score():
-    """Calculate daily team scores, filtered from 2025-06-25 onwards"""
-    try:
-        ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type'])
-        game_df = pd.read_csv('./games.csv')
-        game_df['date'] = pd.to_datetime(game_df['date'], errors='coerce')
-
-        # Filter data from 2025-06-25 onwards
-        cutoff_date = pd.to_datetime('2025-06-25')
-        game_df = game_df[game_df['date'] >= cutoff_date]
-
-        score_df = game_df.groupby(['date', 'team']).size().reset_index(name='Score')
-        return score_df.sort_values(by=['date', 'Score'], ascending=[False, False]).reset_index(drop=True)
-    except Exception as e:
-        print(f"Error calculating team scores: {e}")
-        return pd.DataFrame(columns=['date', 'team', 'Score'])
-
-def gen_first_player(df):
-    """Find the first player based on timestamp"""
+def get_last_player(df):
+    """Get the most recent player by date + time descending"""
     if df.empty:
-        return "No player found"
+        return "No entries yet"
 
     try:
-        # Create a proper copy to avoid SettingWithCopyWarning
         df_copy = df.copy()
         df_copy['date'] = pd.to_datetime(df_copy['date'])
         df_copy['time'] = pd.to_datetime(df_copy['time'], format='%H:%M:%S').dt.time
         df_copy['timestamp'] = df_copy.apply(lambda row: pd.Timestamp.combine(row['date'], row['time']), axis=1)
-        df_copy = df_copy.sort_values(by='timestamp')
+        df_copy = df_copy.sort_values(by='timestamp', ascending=False)
 
-        if not df_copy.empty:
-            return df_copy.iloc[0]['name']
-        return "No player found"
+        return df_copy.iloc[0]['name']
     except Exception as e:
-        print(f"Error finding first player: {e}")
-        return "Error finding player"
+        print(f"Error finding last player: {e}")
+        return "Error"
+
+def get_quarter_date_range(quarter_str):
+    """Get the start and end dates for a given quarter string like '2025Q3'"""
+    if quarter_str == 'ALL':
+        return None, None
+    
+    try:
+        year = int(quarter_str[:4])
+        quarter_num = int(quarter_str[5])
+        
+        quarter_ranges = {
+            1: (f'{year}-01-01', f'{year}-03-31'),
+            2: (f'{year}-04-01', f'{year}-06-30'),
+            3: (f'{year}-07-01', f'{year}-09-30'),
+            4: (f'{year}-10-01', f'{year}-12-31'),
+        }
+        
+        if quarter_num in quarter_ranges:
+            return pd.to_datetime(quarter_ranges[quarter_num][0]), pd.to_datetime(quarter_ranges[quarter_num][1])
+    except (ValueError, IndexError):
+        pass
+    
+    return None, None
+
+def get_available_quarters(df):
+    """Get list of all quarters present in the data"""
+    if df.empty:
+        return []
+    
+    # Add year-quarter column
+    df_copy = df.copy()
+    df_copy['year_quarter'] = df_copy['date'].dt.to_period('Q').astype(str)
+    
+    # Get unique quarters and sort them
+    quarters = sorted(df_copy['year_quarter'].unique())
+    
+    return quarters
+
+def calculate_quarterly_stats(df, quarter='2025Q3'):
+    """Calculate statistics for a specific quarter or all time"""
+    if df.empty:
+        return {
+            'block': pd.DataFrame(columns=['name', 'TotalFinishes']),
+            'assist': pd.DataFrame(columns=['name', 'TotalFinishes']),
+            'sequence': pd.DataFrame(columns=['name', 'TotalFinishes'])
+        }
+    
+    # Filter by quarter if not 'ALL'
+    if quarter != 'ALL':
+        start_date, end_date = get_quarter_date_range(quarter)
+        if start_date and end_date:
+            df_filtered = df[(df['date'] >= start_date) & (df['date'] <= end_date)]
+        else:
+            df_filtered = df
+    else:
+        df_filtered = df
+    
+    # Calculate stats for each type
+    stats = {}
+    for game_type in ['Block', 'Assist', 'Sequence']:
+        type_df = df_filtered[df_filtered['type'] == game_type]
+        if not type_df.empty:
+            type_stats = type_df.groupby(['name']).size().reset_index(name='TotalFinishes')
+            type_stats = type_stats.sort_values(by=['TotalFinishes'], ascending=[False]).reset_index(drop=True)
+            stats[game_type.lower()] = type_stats
+        else:
+            stats[game_type.lower()] = pd.DataFrame(columns=['name', 'TotalFinishes'])
+    
+    return stats
 
 # Initialize global dataframes
 team_df = gen_team_df()
 game_df = gen_all_game_df()
-game_df2 = daily_team_score()
 
 @app.route('/')
 def start():
@@ -156,7 +202,7 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    global game_df, game_df2, team_df
+    global game_df, team_df
 
     try:
         # Get current date in PST timezone
@@ -170,15 +216,13 @@ def dashboard():
 
         # Filter today's games
         todays_games = game_df[game_df['date'].dt.date == today.date()][['date', 'time', 'name', 'type']]
-        team_count = team_df2['team'].nunique()
 
         # Convert time column
         if not todays_games.empty:
             todays_games['time'] = pd.to_datetime(todays_games['time'], format='%H:%M:%S').dt.time
 
-        # Find next turn for Sequence games
-        sequence_games = game_df[game_df['type'] == 'Sequence']######################################THIS IS STUCK PULLING HOWARD CONSISTENTLY
-        next_turn = gen_first_player(sequence_games)
+        # Find the most recent player across all game types
+        last_player = get_last_player(game_df)
 
         # Prepare data for templates
         headings = todays_games.columns.tolist()
@@ -188,16 +232,12 @@ def dashboard():
             return render_template('admin.html',
                                  headings=headings,
                                  data=data,
-                                 seq=todays_games,
-                                 team=team_df2,
-                                 nxtTurn=next_turn,
+                                 nxtTurn=last_player,
                                  name=current_user.username)
         elif current_user.role == 'user':
             return render_template('user.html',
-                                 seq=todays_games[todays_games['type'] == 'Sequence'],
-                                 team=team_df2,
-                                 ass=todays_games[todays_games['type'] == 'Assist'],
-                                 block=todays_games[todays_games['type'] == 'Block'],
+                                 data=data,
+                                 nxtTurn=last_player,
                                  name=current_user.username)
     except Exception as e:
         flash(f'Error loading dashboard: {str(e)}', 'error')
@@ -208,7 +248,7 @@ def dashboard():
 @app.route('/submit_form', methods=['POST'])
 @login_required
 def submit_form():
-    global game_df, game_df2
+    global game_df
 
     try:
         date = request.form.get('date', '')
@@ -238,7 +278,6 @@ def submit_form():
 
             # Refresh dataframes
             game_df = gen_all_game_df()
-            game_df2 = daily_team_score()
 
         flash('Game entry submitted successfully!', 'success')
     except Exception as e:
@@ -258,7 +297,7 @@ def submit_form_team():
 
         # Validate input
         if not all([team, date]):
-            flash('Team and date are required', 'error')# I DON'T THINK MY FLASH IS WORKING
+            flash('Team and date are required', 'error')
             return redirect(url_for('dashboard'))
 
         new_row = {
@@ -294,27 +333,73 @@ def halloffame():
         cutoff_date = pd.to_datetime('2025-06-25')
         df = df[df['date'] >= cutoff_date]
 
-        # Use only filtered data for hall of fame
-        this_period = df[['date', 'time', 'name', 'type']]
+        # Get available quarters from the data
+        available_quarters = get_available_quarters(df)
+        
+        # Get selected quarter from query parameter, default to most recent quarter
+        default_quarter = available_quarters[-1] if available_quarters else '2025Q3'
+        selected_quarter = request.args.get('quarter', default_quarter)
 
-        # Calculate statistics for each game type
-        block_stats = this_period[this_period['type'] == 'Block'].groupby(['name']).size().reset_index(name='TotalFinishes')
-        block_stats = block_stats.sort_values(by=['TotalFinishes'], ascending=[False]).reset_index(drop=True)
+        # Calculate stats for all available quarters plus 'ALL'
+        quarters_data = {}
+        for quarter in available_quarters + ['ALL']:
+            quarters_data[quarter] = calculate_quarterly_stats(df, quarter)
 
-        assist_stats = this_period[this_period['type'] == 'Assist'].groupby(['name']).size().reset_index(name='TotalFinishes')
-        assist_stats = assist_stats.sort_values(by=['TotalFinishes'], ascending=[False]).reset_index(drop=True)
+        # Current quarter info (PST)
+        pst = pytz.timezone('US/Pacific')
+        now_pst = datetime.datetime.now(pst)
+        current_month = now_pst.month
+        current_year = now_pst.year
 
-        sequence_stats = this_period[this_period['type'] == 'Sequence'].groupby(['name']).size().reset_index(name='TotalFinishes')
-        sequence_stats = sequence_stats.sort_values(by=['TotalFinishes'], ascending=[False]).reset_index(drop=True)
+        if current_month <= 3:
+            current_q_num = 1
+            quarter_end = datetime.datetime(current_year, 3, 31, 23, 59, 59, tzinfo=pst)
+        elif current_month <= 6:
+            current_q_num = 2
+            quarter_end = datetime.datetime(current_year, 6, 30, 23, 59, 59, tzinfo=pst)
+        elif current_month <= 9:
+            current_q_num = 3
+            quarter_end = datetime.datetime(current_year, 9, 30, 23, 59, 59, tzinfo=pst)
+        else:
+            current_q_num = 4
+            quarter_end = datetime.datetime(current_year, 12, 31, 23, 59, 59, tzinfo=pst)
+
+        current_quarter_label = f"{current_year} Q{current_q_num}"
+        days_remaining = (quarter_end.date() - now_pst.date()).days
 
         return render_template('halloffame.html',
-                             dataframe0block=block_stats,
-                             dataframe1assist=assist_stats,
-                             dataframe2seq=sequence_stats,
-                             dataframe3=block_stats)
+                             quarters_data=quarters_data,
+                             available_quarters=available_quarters,
+                             selected_quarter=selected_quarter,
+                             current_quarter_label=current_quarter_label,
+                             days_remaining=days_remaining)
     except Exception as e:
         flash(f'Error loading hall of fame: {str(e)}', 'error')
         print(f"Hall of fame error: {e}")
+        return redirect(url_for('dashboard'))
+
+@app.route('/hallofshame')
+@login_required
+def hallofshame():
+    try:
+        ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type'])
+        df = pd.read_csv('./games.csv')
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
+        cutoff_date = pd.to_datetime('2025-06-25')
+        df = df[df['date'] >= cutoff_date]
+
+        available_quarters = get_available_quarters(df)
+
+        default_quarter = available_quarters[-1] if available_quarters else '2025Q3'
+        selected_quarter = request.args.get('quarter', default_quarter)
+
+        return render_template('hallofshame.html',
+                             available_quarters=available_quarters,
+                             selected_quarter=selected_quarter)
+    except Exception as e:
+        flash(f'Error loading hall of shame: {str(e)}', 'error')
+        print(f"Hall of shame error: {e}")
         return redirect(url_for('dashboard'))
 
 @app.route('/send-data', methods=['POST'])
@@ -326,8 +411,6 @@ def send_data():
             return jsonify({'error': 'No data received'}), 400
 
         # Process data
-
-
         return jsonify({'success': True, 'message': 'Data processed successfully'})
     except Exception as e:
         print(f"Send data error: {e}")
@@ -342,11 +425,11 @@ def logout():
 
 @app.errorhandler(404)
 def not_found(error):
-    return render_template('404.html'), 404
+    return "Page not found", 404
 
 @app.errorhandler(500)
 def internal_error(error):
-    return render_template('500.html'), 500
+    return "Internal server error", 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5000)

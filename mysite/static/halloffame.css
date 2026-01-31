@@ -1,0 +1,301 @@
+:root {
+    --navy-dark: #0a1128;
+    --navy-medium: #1c2541;
+    --navy-light: #3a506b;
+    --off-white: #f8f9fa;
+    --off-white-dark: #e9ecef;
+    --accent-gold: #c9a961;
+    --gold-medal: #ffd700;
+    --silver-medal: #c0c0c0;
+    --bronze-medal: #cd7f32;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--off-white);
+    min-height: 100vh;
+    color: var(--navy-dark);
+}
+
+.main-container {
+    background: white;
+    max-width: 1400px;
+    margin: 0 auto;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Header --- */
+.header {
+    background: var(--navy-dark);
+    color: var(--off-white);
+    padding: 30px 40px;
+    position: relative;
+    border-bottom: 3px solid var(--accent-gold);
+}
+
+.header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.header .subtitle {
+    font-size: 0.95rem;
+    opacity: 0.8;
+    font-weight: 400;
+    margin-top: 5px;
+}
+
+.nav-buttons {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    display: flex;
+    gap: 10px;
+}
+
+.nav-btn {
+    padding: 10px 20px;
+    background: var(--navy-medium);
+    color: var(--off-white);
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid var(--navy-light);
+    font-size: 0.9rem;
+}
+
+.nav-btn:hover {
+    background: var(--navy-light);
+    color: var(--off-white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Content --- */
+.content {
+    padding: 40px;
+    background: var(--off-white);
+}
+
+/* --- Current Quarter Banner --- */
+.quarter-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--navy-dark);
+    border-radius: 8px;
+    padding: 20px 28px;
+    margin-bottom: 30px;
+}
+
+.current-quarter-label {
+    color: var(--off-white);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.quarter-finalize {
+    color: var(--off-white);
+    font-size: 0.9rem;
+    opacity: 0.7;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .quarter-banner {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+}
+
+/* --- Quarter Dropdown --- */
+.quarter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 30px;
+    gap: 12px;
+}
+
+.quarter-bar label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--navy-dark);
+    white-space: nowrap;
+}
+
+.quarter-select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 10px 40px 10px 16px;
+    border: 2px solid var(--off-white-dark);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--navy-dark);
+    background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%230a1128'/%3E%3C/svg%3E") no-repeat right 14px center;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    min-width: 160px;
+}
+
+.quarter-select:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+}
+
+/* --- Table --- */
+.table-container {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--off-white-dark);
+}
+
+table.hof-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.hof-table thead th {
+    background: var(--navy-dark);
+    color: var(--off-white);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 16px;
+    font-size: 0.82rem;
+    text-align: left;
+    border: none;
+}
+
+/* Category group header row */
+table.hof-table .category-row td {
+    background: var(--navy-medium);
+    color: var(--off-white);
+    font-weight: 600;
+    font-size: 0.88rem;
+    padding: 11px 16px;
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid var(--navy-light);
+}
+
+table.hof-table .category-row td i {
+    color: var(--accent-gold);
+    margin-right: 8px;
+    font-size: 0.9rem;
+}
+
+/* Data rows */
+table.hof-table .data-row td {
+    padding: 13px 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--off-white-dark);
+    font-size: 0.9rem;
+    color: var(--navy-dark);
+}
+
+table.hof-table .data-row:hover {
+    background: var(--off-white);
+}
+
+/* Rank badges */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.rank-1 {
+    background: linear-gradient(135deg, var(--gold-medal), #daa520);
+    color: var(--navy-dark);
+}
+
+.rank-2 {
+    background: linear-gradient(135deg, var(--silver-medal), #a8a8a8);
+    color: var(--navy-dark);
+}
+
+.rank-3 {
+    background: linear-gradient(135deg, var(--bronze-medal), #a0522d);
+    color: white;
+}
+
+/* Score badge */
+.score-badge {
+    background: var(--navy-medium);
+    color: var(--off-white);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--navy-light);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.empty-state h3 {
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    .nav-buttons {
+        position: static;
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    .header {
+        text-align: center;
+        padding-bottom: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding: 20px;
+    }
+
+    .header {
+        padding: 20px;
+    }
+
+    .quarter-bar {
+        justify-content: center;
+    }
+
+    table.hof-table thead th,
+    table.hof-table tbody td {
+        padding: 10px 12px;
+        font-size: 0.82rem;
+    }
+}

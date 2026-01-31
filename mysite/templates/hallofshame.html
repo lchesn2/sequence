@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hall of Shame - Sequence Game</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='hallofshame.css') }}">
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div class="nav-buttons">
+                <a href="{{ url_for('dashboard') }}" class="nav-btn">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="{{ url_for('halloffame') }}" class="nav-btn">
+                        <i class="fas fa-chess-queen"></i> Hall of Fame
+                </a>
+                <a href="{{ url_for('logout') }}" class="nav-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+            <h1><i class="fas fa-skull-crossbones"></i> Hall of Shame</h1>
+            <p class="subtitle">The ones who'd rather forget</p>
+        </div>
+
+        <div class="content">
+            <!-- Quarter Dropdown -->
+            <div class="quarter-bar">
+                <label for="quarterSelect">Quarter</label>
+                <select class="quarter-select" id="quarterSelect" onchange="window.location.href='{{ url_for('hallofshame') }}?quarter='+this.value">
+                    {% for quarter in available_quarters %}
+                    <option value="{{ quarter }}" {% if quarter == selected_quarter %}selected{% endif %}>
+                        {{ quarter[:4] }} {{ quarter[4:] }}
+                    </option>
+                    {% endfor %}
+                    <option value="ALL" {% if selected_quarter == 'ALL' %}selected{% endif %}>All Time</option>
+                </select>
+            </div>
+
+            <!-- Coming Soon -->
+            <div class="coming-soon">
+                <i class="fas fa-skull-crossbones"></i>
+                <h3>Data coming soon!</h3>
+                <p>Hall of Shame stats for {{ selected_quarter if selected_quarter != 'ALL' else 'All Time' }} will be available shortly.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

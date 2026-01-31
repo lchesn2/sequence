@@ -7,14 +7,13 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #6c5ce7;
-            --secondary-color: #a29bfe;
-            --accent-color: #fd79a8;
-            --success-color: #00b894;
-            --warning-color: #fdcb6e;
-            --dark-color: #2d3436;
-            --light-color: #f8f9fa;
-            --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --navy-dark: #0a1128;
+            --navy-medium: #1c2541;
+            --navy-light: #3a506b;
+            --off-white: #f8f9fa;
+            --off-white-dark: #e9ecef;
+            --accent-gold: #c9a961;
+            --accent-blue: #5bc0be;
         }
 
         * {
@@ -25,17 +24,17 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--gradient-bg);
+            background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-medium) 50%, var(--navy-light) 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--dark-color);
+            color: var(--navy-dark);
             position: relative;
             overflow: hidden;
         }
 
-        /* Animated background elements */
+        /* Subtle animated background elements */
         .bg-animation {
             position: absolute;
             width: 100%;
@@ -46,39 +45,40 @@
             z-index: 0;
         }
 
-        .floating-card {
+        .floating-element {
             position: absolute;
-            font-size: 2rem;
-            color: rgba(255, 255, 255, 0.1);
-            animation: float 6s ease-in-out infinite;
+            width: 2px;
+            height: 2px;
+            background: rgba(201, 169, 97, 0.3);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
         }
 
-        .floating-card:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
-        .floating-card:nth-child(2) { top: 20%; right: 15%; animation-delay: 1s; }
-        .floating-card:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 2s; }
-        .floating-card:nth-child(4) { bottom: 15%; right: 10%; animation-delay: 3s; }
-        .floating-card:nth-child(5) { top: 50%; left: 5%; animation-delay: 4s; }
-        .floating-card:nth-child(6) { top: 60%; right: 5%; animation-delay: 5s; }
+        .floating-element:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .floating-element:nth-child(2) { top: 20%; right: 15%; animation-delay: 1.5s; }
+        .floating-element:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 3s; }
+        .floating-element:nth-child(4) { bottom: 15%; right: 10%; animation-delay: 4.5s; }
+        .floating-element:nth-child(5) { top: 50%; left: 5%; animation-delay: 6s; }
+        .floating-element:nth-child(6) { top: 60%; right: 5%; animation-delay: 7.5s; }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-20px) rotate(5deg); }
-            66% { transform: translateY(10px) rotate(-3deg); }
+            0%, 100% { transform: translateY(0px) scale(1); opacity: 0.3; }
+            33% { transform: translateY(-30px) scale(1.5); opacity: 0.6; }
+            66% { transform: translateY(15px) scale(0.8); opacity: 0.4; }
         }
 
         .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
+            background: var(--off-white);
             padding: 50px 40px;
-            border-radius: 25px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
             width: 100%;
             max-width: 450px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
             position: relative;
             z-index: 1;
             animation: slideIn 0.8s ease-out;
+            border: 1px solid rgba(201, 169, 97, 0.2);
         }
 
         @keyframes slideIn {
@@ -99,29 +99,21 @@
         .login-header h1 {
             font-size: 2.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--navy-dark);
             margin-bottom: 10px;
+            letter-spacing: -0.5px;
         }
 
         .login-header .subtitle {
-            font-size: 1.1rem;
-            color: #666;
+            font-size: 1rem;
+            color: var(--navy-light);
             font-weight: 400;
         }
 
         .game-icon {
             font-size: 3rem;
             margin-bottom: 20px;
-            color: var(--primary-color);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            color: var(--accent-gold);
         }
 
         .login-form {
@@ -137,7 +129,7 @@
             display: block;
             font-weight: 600;
             margin-bottom: 8px;
-            color: var(--dark-color);
+            color: var(--navy-dark);
             font-size: 0.95rem;
         }
 
@@ -150,39 +142,39 @@
             left: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: #999;
-            font-size: 1.1rem;
+            color: var(--navy-light);
+            font-size: 1rem;
         }
 
         .form-group input {
             width: 100%;
             padding: 15px 15px 15px 45px;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
+            border: 2px solid var(--off-white-dark);
+            border-radius: 8px;
             font-size: 1rem;
             transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
+            background: white;
+            color: var(--navy-dark);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1);
             background: white;
         }
 
         .form-group input:focus + i {
-            color: var(--primary-color);
+            color: var(--accent-gold);
         }
 
         .login-btn {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
+            background: var(--navy-medium);
+            color: var(--off-white);
             padding: 15px 40px;
             border: none;
-            border-radius: 25px;
-            font-weight: 700;
+            border-radius: 8px;
+            font-weight: 600;
             font-size: 1.1rem;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -193,8 +185,9 @@
         }
 
         .login-btn:hover {
+            background: var(--navy-dark);
             transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(108, 92, 231, 0.4);
+            box-shadow: 0 8px 20px rgba(10, 17, 40, 0.3);
         }
 
         .login-btn:active {
@@ -205,31 +198,12 @@
             margin-right: 10px;
         }
 
-        /* Ripple effect */
-        .login-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: width 0.6s, height 0.6s, top 0.6s, left 0.6s;
-            transform: translate(-50%, -50%);
-        }
-
-        .login-btn:active::before {
-            width: 300px;
-            height: 300px;
-        }
-
         .forgot-password {
             margin-top: 20px;
         }
 
         .forgot-password a {
-            color: var(--primary-color);
+            color: var(--navy-light);
             text-decoration: none;
             font-weight: 500;
             font-size: 0.9rem;
@@ -237,8 +211,7 @@
         }
 
         .forgot-password a:hover {
-            color: var(--accent-color);
-            text-decoration: underline;
+            color: var(--accent-gold);
         }
 
         .version-info {
@@ -246,7 +219,7 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(248, 249, 250, 0.5);
             font-size: 0.85rem;
             font-weight: 300;
         }
@@ -255,7 +228,7 @@
             .login-container {
                 margin: 20px;
                 padding: 40px 30px;
-                border-radius: 20px;
+                border-radius: 12px;
             }
 
             .login-header h1 {
@@ -270,6 +243,7 @@
         /* Loading state */
         .login-btn.loading {
             pointer-events: none;
+            opacity: 0.7;
         }
 
         .login-btn.loading i {
@@ -284,21 +258,21 @@
 </head>
 <body>
     <div class="bg-animation">
-        <div class="floating-card">♠</div>
-        <div class="floating-card">♥</div>
-        <div class="floating-card">♦</div>
-        <div class="floating-card">♣</div>
-        <div class="floating-card">🏆</div>
-        <div class="floating-card">🎯</div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
     </div>
 
     <div class="login-container">
         <div class="login-header">
             <div class="game-icon">
-                <i class="fas fa-gamepad"></i>
+                <i class="fas fa-chess-board"></i>
             </div>
             <h1>Sequence Game</h1>
-            <p class="subtitle">Welcome back, champion!</p>
+            <p class="subtitle">Ready, Set, Sequence!</p>
         </div>
 
         <form class="login-form" action="{{ url_for('login') }}" method="post">
@@ -325,18 +299,18 @@
             <div class="form-group">
                 <button type="submit" class="login-btn" id="loginBtn">
                     <i class="fas fa-sign-in-alt"></i>
-                    Ballin'
+                    Sign In
                 </button>
             </div>
         </form>
 
         <div class="forgot-password">
-            <a href="#">Forgot your password?</a>
+            <a href="https://www.youtube.com/watch?v=2qBlE2-WL60">Forgot your password?</a>
         </div>
     </div>
 
     <div class="version-info">
-        Sequence Game v2.0 • Built with ❤️
+        Sequence Game v2.0
     </div>
 
     <script>
@@ -348,50 +322,29 @@
             // Add loading state
             btn.classList.add('loading');
             icon.className = 'fas fa-spinner';
-            btn.innerHTML = '<i class="fas fa-spinner"></i> Logging in...';
+            btn.innerHTML = '<i class="fas fa-spinner"></i> Signing in...';
 
             // Optional: Remove loading state after form submission fails
-            // This would typically be handled by your backend redirecting on success
             setTimeout(() => {
                 if (btn.classList.contains('loading')) {
                     btn.classList.remove('loading');
                     icon.className = 'fas fa-sign-in-alt';
-                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Ballin\'';
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
                 }
             }, 3000);
         });
 
-        // Add floating animation on focus
+        // Add subtle animation on focus
         const inputs = document.querySelectorAll('input');
         inputs.forEach(input => {
             input.addEventListener('focus', function() {
                 this.parentElement.style.transform = 'translateY(-2px)';
+                this.parentElement.style.transition = 'transform 0.3s ease';
             });
 
             input.addEventListener('blur', function() {
                 this.parentElement.style.transform = 'translateY(0)';
             });
-        });
-
-        // Add ripple effect to button
-        document.querySelector('.login-btn').addEventListener('click', function(e) {
-            const btn = this;
-            const ripple = document.createElement('span');
-            const rect = btn.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = e.clientX - rect.left - size / 2;
-            const y = e.clientY - rect.top - size / 2;
-
-            ripple.style.width = ripple.style.height = size + 'px';
-            ripple.style.left = x + 'px';
-            ripple.style.top = y + 'px';
-            ripple.classList.add('ripple');
-
-            btn.appendChild(ripple);
-
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
         });
     </script>
 </body>

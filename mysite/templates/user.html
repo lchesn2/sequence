@@ -3,288 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sequence</title>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 20px;
-            padding: 0;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-
-        h2 {
-            color: #3498db;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #3498db;
-            color: #fff;
-        }
-
-        .logout-btn, .change-password-btn {
-            float: right;
-            margin-top: 10px;
-            margin-right: 10px;
-            padding: 8px 12px;
-            background-color: #3498db;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+    <title>ADP San Dimas Chapter 319</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">
 </head>
 <body>
+    <div class="main-container">
+        <div class="header">
+            <div class="header-top">
+                <div class="welcome-message">
+                    <i class="fas fa-user-circle"></i> {{ name }}
+                </div>
+                <div class="nav-buttons">
+                    <a href="{{ url_for('halloffame') }}" class="nav-btn">
+                        <i class="fas fa-chess-queen"></i> Hall of Fame
+                    </a>
+                    <a href="{{ url_for('hallofshame') }}" class="nav-btn">
+                        <i class="fas fa-chess-pawn"></i> Hall of Shame
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="nav-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+            <h1><i class="fas fa-chess-board"></i> Sequence Game</h1>
+            <p class="subtitle">Welcome {{name}}, do you have what it takes to rise to the top of the sequence stats?</p>
 
-<div style="max-width: 800px; margin: 0 auto;">
+        </div>
 
+        <div class="content">
+            <!-- Last Player -->
+            <div class="last-finish">
+                <h3><i class="fas fa-chess"></i> Last Finisher: {{ nxtTurn }}</h3>
+            </div>
 
+            <!-- Play by Play -->
+            <div class="form-section">
+                <div class="section-header">
+                    <i class="fas fa-list-alt"></i>
+                    <h2>Play by Play</h2>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="playByPlay">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Player</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data %}
+                            <tr>
+                                <td>{{ row[0] }}</td>
+                                <td><strong>{{ row[2] }}</strong></td>
+                                <td>
+                                    <span class="type-badge type-{{ row[3].lower() }}">
+                                        {% if row[3] == 'Sequence' %}
+                                            <i class="fas fa-crown"></i>
+                                        {% elif row[3] == 'Assist' %}
+                                            <i class="fas fa-handshake"></i>
+                                        {% elif row[3] == 'Block' %}
+                                            <i class="fas fa-shield-alt"></i>
+                                        {% endif %}
+                                        {{ row[3] }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
-
-    <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
-    <a href="{{ url_for('halloffame') }}" class="change-password-btn">Hall Of Fame</a>
-    <h5 style="text-align: left;">Hello {{  name }}!</h5>
-    <h2 style="text-align: center;"></h2>
-
-
-
-    <form action="submit_form" method="post">
-
-
-        <br><br>
-        <br>
-        <label for="date">Date:</label><br>
-        <input type="text" id="date" name="date" readonly><br><br>
-
-        <label for="time">Time:</label><br>
-        <input type="text" id="time" name="time" readonly>
-        <!--<input type="text" id="time" name="time" value="{{time}}">-->
-        <br><br>
-
-        <label for="team">Team:</label><br>
-
-        <select name="teamwin" id="teamwin">
-            <option value="Blue">Blue</option>
-            <option value="Green">Green</option>
-            <option value="Red">Red</option>
-        </select>
-
-        <br><br>
-
-        <label for="name">Name:</label><br>
-
-        <select name="name" id="name">
-            <option value="{{name}}" id="optionName">{{name}}</option>
-
-        </select>
-
-        <br><br>
-
-        <label for="card">Card:</label><br>
-
-        <select name="card" id="card">
-            <option value="2♠">2♠</option>
-            <option value="2♥">2♥ </option>
-            <option value="2♦">2♦ </option>
-            <option value="2♣">2♣ </option>
-            <option value="3♠">3♠</option>
-            <option value="3♥">3♥ </option>
-            <option value="3♦">3♦ </option>
-            <option value="3♣">3♣ </option>
-            <option value="4♠">4♠</option>
-            <option value="4♥">4♥ </option>
-            <option value="4♦">4♦ </option>
-            <option value="4♣">4♣ </option>
-            <option value="5♠">5♠</option>
-            <option value="5♥">5♥ </option>
-            <option value="5♦">5♦ </option>
-            <option value="5♣">5♣ </option>
-            <option value="6♠">6♠</option>
-            <option value="6♥">6♥ </option>
-            <option value="6♦">6♦ </option>
-            <option value="6♣">6♣ </option>
-            <option value="7♠">7♠</option>
-            <option value="7♥">7♥ </option>
-            <option value="7♦">7♦ </option>
-            <option value="7♣">7♣ </option>
-            <option value="8♠">8♠</option>
-            <option value="8♥">8♥ </option>
-            <option value="8♦">8♦ </option>
-            <option value="8♣">8♣ </option>
-            <option value="9♠">9♠</option>
-            <option value="9♥">9♥ </option>
-            <option value="9♦">9♦ </option>
-            <option value="9♣">9♣ </option>
-            <option value="10♠">10♠</option>
-            <option value="10♥">10♥ </option>
-            <option value="10♦">10♦ </option>
-            <option value="10♣">10♣ </option>
-            <option value="J♦">J♦ </option>
-            <option value="J♣">J♣ </option>
-            <option value="J♥">J♥ </option>
-            <option value="J♠">J♠</option>
-            <option value="Q♠">Q♠</option>
-            <option value="Q♥">Q♥ </option>
-            <option value="Q♦">Q♦ </option>
-            <option value="Q♣">Q♣ </option>
-            <option value="K♠">K♠</option>
-            <option value="K♥">K♥ </option>
-            <option value="K♦">K♦ </option>
-            <option value="K♣">K♣ </option>
-            <option value="A♠">A♠</option>
-            <option value="A♥">A♥ </option>
-            <option value="A♦">A♦ </option>
-            <option value="A♣">A♣ </option>
-
-        </select>
-
-        <br><br>
-
-        <label for="type">Type:</label><br>
-
-        <select name="type" id="type">
-            <option value="Assist">Assist</option>
-            <option value="Block">Block</option>
-            <option value="Sequence">Sequence</option>
-
-
-
-        </select>
-        <br><br>
-
-
-
-        <br><br>
-
-        <input type="submit" value="Submit">
-    </form>
-
-    <br><br>
-    <h3 style="text-align: center;">Last Finish: {{nxtTurn}}</h3>
-
-    <h2 style="text-align: center;">Today Your Teams Are</h2>
-    <table id="myTable0" class="display">
-        <!-- Your table content here -->
-        {{ team.to_html(classes='table', index=False) | safe }}
-    </table>
-    <br><br>
-
-
-    <br><br>
-    <h2 style="text-align: center;">Play By Play</h2>
-    <table id="myTable" class="display">
-        <!-- Your table content here -->
-        {{ seq.to_html(classes='table', index=False) | safe }}
-    </table>
-    <br><br>
-    <h2 style="text-align: center;">Blocks</h2>
-    <table id="blocks" class="display">
-        <!-- Your table content here -->
-        {{ block.to_html(classes='table', index=False) | safe }}
-    </table>
-    <br><br>
-    <h2 style="text-align: center;">Assists</h2>
-    <table id="assists" class="display">
-        <!-- Your table content here -->
-        {{ ass.to_html(classes='table', index=False) | safe }}
-    </table>
-    <br><br>
-
-
-</div>
-<script>
-    document.getElementById("myForm").addEventListener("submit", function(event) {
-        // Show confirmation dialog
-        const userConfirmed = confirm("Are you sure you want to submit?");
-
-        // If the user clicks "Cancel", prevent form submission
-        if (!userConfirmed) {
-            event.preventDefault();
-        }
-    });
-</script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-
-<script>
-    // Function to get the current time
-    function getCurrentTime() {
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        return `${hours}:${minutes}:${seconds}`;
-    }
-
-    // Populate the input field with the current date and time
-    document.getElementById('time').value = getCurrentTime();
-</script>
-<script>
-    // Function to get the current date
-    function getCurrentDate() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-        const day = String(now.getDate()).padStart(2, '0');
-
-        return `${year}-${month}-${day}`;
-    }
-
-    // Populate the input field with the current date and time
-    document.getElementById('date').value = getCurrentDate();
-</script>
-
-<script>
-    // Function to get the current date and time
-    function getCurrentDateTime() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    }
-
-    // Populate the input field with the current date and time
-    document.getElementById('datetime').value = getCurrentDateTime();
-</script>
-
-<script>
-    $(document).ready(function() {
-
-
-        $('#myTable').DataTable({
-            searching: true, // Enable search functionality
-
-
-
-
-
+    <script>
+        $(document).ready(function() {
+            $('#playByPlay').DataTable({
+                responsive: true,
+                pageLength: 15,
+                order: [[0, 'desc']],
+                language: {
+                    search: "Search entries:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                }
+            });
         });
-    });
-</script>
-
-
-
-
+    </script>
 </body>
 </html>

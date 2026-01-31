@@ -3,484 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Sequence Game</title>
+    <title>Admins Only</title>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #6c5ce7;
-            --secondary-color: #a29bfe;
-            --accent-color: #fd79a8;
-            --success-color: #00b894;
-            --warning-color: #fdcb6e;
-            --dark-color: #2d3436;
-            --light-color: #f8f9fa;
-            --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--gradient-bg);
-            min-height: 100vh;
-            color: var(--dark-color);
-        }
-
-        .main-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            margin: 20px auto;
-            max-width: 1400px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .header .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            font-weight: 300;
-        }
-
-        .nav-buttons {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .nav-btn {
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .welcome-message {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px 20px;
-            border-radius: 25px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            font-weight: 500;
-        }
-
-        .content {
-            padding: 40px;
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-
-        .form-section {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 3px solid var(--primary-color);
-        }
-
-        .section-header i {
-            font-size: 1.8rem;
-            margin-right: 15px;
-            color: var(--primary-color);
-        }
-
-        .section-header h2 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--dark-color);
-            margin: 0;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--dark-color);
-            font-size: 0.95rem;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
-        }
-
-        .submit-btn {
-            background: linear-gradient(135deg, var(--success-color), #55a3ff);
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 184, 148, 0.3);
-        }
-
-        .last-finish {
-            background: linear-gradient(135deg, var(--accent-color), #ff6b9d);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(253, 121, 168, 0.3);
-        }
-
-        .last-finish h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 0;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-        }
-
-        .table-container {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .table {
-            margin: 0;
-        }
-
-        .table thead th {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border: none;
-            padding: 20px 15px;
-            font-size: 0.9rem;
-        }
-
-        .table tbody td {
-            padding: 15px;
-            vertical-align: middle;
-            border-color: rgba(0, 0, 0, 0.05);
-            font-weight: 500;
-        }
-
-        .table tbody tr:hover {
-            background: linear-gradient(135deg, rgba(108, 92, 231, 0.05), rgba(162, 155, 254, 0.05));
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .table tbody tr:hover td {
-            transform: scale(1.01);
-        }
-
-        .type-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .type-sequence {
-            background: linear-gradient(135deg, var(--success-color), #55a3ff);
-            color: white;
-        }
-
-        .type-assist {
-            background: linear-gradient(135deg, var(--warning-color), #ff9f43);
-            color: white;
-        }
-
-        .type-block {
-            background: linear-gradient(135deg, var(--accent-color), #ff6b9d);
-            color: white;
-        }
-
-        .dataTables_wrapper {
-            padding: 20px;
-        }
-
-        .dataTables_length,
-        .dataTables_filter {
-            margin-bottom: 20px;
-        }
-
-        .dataTables_filter input {
-            border-radius: 25px;
-            border: 2px solid var(--primary-color);
-            padding: 8px 15px;
-            margin-left: 10px;
-        }
-
-        .dataTables_length select {
-            border-radius: 10px;
-            border: 2px solid var(--primary-color);
-            padding: 5px 10px;
-            margin: 0 10px;
-        }
-
-        .dataTables_paginate .paginate_button {
-            border-radius: 10px !important;
-            margin: 0 2px !important;
-        }
-
-        .dataTables_paginate .paginate_button.current {
-            background: var(--primary-color) !important;
-            border-color: var(--primary-color) !important;
-        }
-
-        .game-animation {
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        @media (max-width: 768px) {
-            .main-container {
-                margin: 10px;
-                border-radius: 15px;
-            }
-
-            .header {
-                padding: 20px;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .nav-buttons {
-                position: static;
-                justify-content: center;
-                margin-top: 20px;
-            }
-
-            .welcome-message {
-                position: static;
-                text-align: center;
-                margin-bottom: 20px;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .content-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .section-header h2 {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 </head>
 <body>
     <div class="main-container">
         <div class="header">
-            <div class="welcome-message">
-                <i class="fas fa-user-circle"></i> Welcome, {{ name }}
+            <div class="header-top">
+                <div class="welcome-message">
+                    <i class="fas fa-user-circle"></i> {{ name }}
+                </div>
+                <div class="nav-buttons">
+                    <a href="{{ url_for('halloffame') }}" class="nav-btn">
+                        <i class="fas fa-chess-queen"></i> Hall of Fame
+                    </a>
+                    <a href="{{ url_for('hallofshame') }}" class="nav-btn">
+                        <i class="fas fa-chess-pawn"></i> Hall of Shame
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="nav-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
             </div>
-            <div class="nav-buttons">
-                <a href="{{ url_for('halloffame') }}" class="nav-btn">
-                    <i class="fas fa-trophy"></i> Hall of Fame
-                </a>
-                <a href="{{ url_for('logout') }}" class="nav-btn">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </div>
-            <h1><i class="fas fa-gamepad game-animation"></i> Admin Dashboard</h1>
-            <p class="subtitle">Sequence Game Data Entry</p>
+            <h1><i class="fas fa-chess-board"></i> Admin Dashboard</h1>
+            <p class="subtitle">Welcome {{name}}, thank you for your steadfast contribution to entering sequence data</p>
         </div>
 
         <div class="content">
-            <div class="content-grid">
-                <!-- Data Entry Form -->
-                <div class="form-section">
-                    <div class="section-header">
-                        <i class="fas fa-plus-circle"></i>
-                        <h2>Add New Entry</h2>
-                    </div>
-                    <form action="submit_form" method="post">
-                        <div class="form-group">
-                            <label for="date"><i class="fas fa-calendar"></i> Date:</label>
-                            <input type="text" id="date" name="date" readonly>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="time"><i class="fas fa-clock"></i> Time:</label>
-                            <input type="text" id="time" name="time" readonly>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="name"><i class="fas fa-user"></i> Player Name:</label>
-                            <select name="name" id="name" required>
-                                <option value="">Select Player</option>
-                                <option value="Adam">Adam</option>
-                                <option value="Andy">Andy</option>
-                                <option value="Behring">Behring</option>
-                                <option value="Brian">Brian</option>
-                                <option value="Bogeun">Bogeun</option>
-                                <option value="Christian">Christian</option>
-                                <option value="Daniel">Daniel</option>
-                                <option value="DJ">DJ</option>
-                                <option value="Edward">Edward</option>
-                                <option value="Howard">Howard</option>
-                                <option value="Ghost">Ghost</option>
-                                <option value="John">John</option>
-                                <option value="Jose">Jose</option>
-                                <option value="Jaemo">Jaemo</option>
-                                <option value="Kenji">Kenji</option>
-                                <option value="Larah">Larah</option>
-                                <option value="Maya">Maya</option>
-                                <option value="Mel">Mel</option>
-                                <option value="Nishant">Nishant</option>
-                                <option value="Pratishta">Pratishta</option>
-                                <option value="Russel">Russel</option>
-                                <option value="Poonam">Poonam</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="type"><i class="fas fa-tag"></i> Action Type:</label>
-                            <select name="type" id="type" required>
-                                <option value="">Select Type</option>
-                                <option value="Assist">🤝 Assist</option>
-                                <option value="Block">🛡️ Block</option>
-                                <option value="Sequence">🏆 Sequence</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="submit-btn">
-                            <i class="fas fa-save"></i> Submit Entry
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Last Finish Display -->
-                <div>
-                    <div class="last-finish">
-                        <h3><i class="fas fa-flag-checkered"></i> Last Finish: {{ nxtTurn }}</h3>
-                    </div>
-                </div>
+            <!-- Last Player -->
+            <div class="last-finish">
+                <h3><i class="fas fa-chess"></i> Last Finisher: {{ nxtTurn }}</h3>
             </div>
 
-            <!-- Play by Play Table -->
-            <div class="section-header">
-                <i class="fas fa-list-alt"></i>
-                <h2>Play by Play</h2>
+            <!-- Add New Entry -->
+            <div class="form-section">
+                <div class="section-header">
+                    <i class="fas fa-plus-circle"></i>
+                    <h2>Add New Entry</h2>
+                </div>
+                <form action="submit_form" method="post">
+                    <div class="form-group">
+                        <label for="date"><i class="fas fa-calendar"></i> Date</label>
+                        <input type="text" id="date" name="date" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="time"><i class="fas fa-clock"></i> Time</label>
+                        <input type="text" id="time" name="time" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name"><i class="fas fa-user"></i> Player Name</label>
+                        <select name="name" id="name" required>
+                            <option value="">Select Player</option>
+                            <option value="Adam">Adam</option>
+                            <option value="Behring">Behring</option>
+                            <option value="Choi">Choi</option>
+                            <option value="Daniel">Daniel</option>
+                            <option value="Edward">Edward</option>
+                            <option value="Howard">Howard</option>
+                            <option value="Jaemo">Jaemo</option>
+                            <option value="John">John</option>
+                            <option value="Jose">Jose</option>
+                            <option value="Kenji">Kenji</option>
+                            <option value="Larah">Larah</option>
+                            <option value="Maya">Maya</option>
+                            <option value="Mel">Mel</option>
+                            <option value="Nishant">Nishant</option>
+                            <option value="Pratishta">Pratishta</option>
+                            <option value="Russell">Russell</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="type"><i class="fas fa-tag"></i> Action Type</label>
+                        <select name="type" id="type" required>
+                            <option value="">Select Type</option>
+                            <option value="Assist">Assist</option>
+                            <option value="Block">Block</option>
+                            <option value="Sequence">Sequence</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-save"></i> Submit Entry
+                    </button>
+                </form>
             </div>
-            <div class="table-container">
-                <table class="table" id="lancelot">
-                    <thead>
-                        <tr>
-                            {% for header in headings %}
-                            <th>{{ header }}</th>
+
+            <!-- Play by Play -->
+            <div class="form-section">
+                <div class="section-header">
+                    <i class="fas fa-list-alt"></i>
+                    <h2>Play by Play</h2>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="lancelot">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Player</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lancelot_data">
+                            {% for row in data %}
+                            <tr data-date="{{ row[0] }}" data-time="{{ row[1] }}" data-name="{{ row[2] }}" data-type="{{ row[3] }}">
+                                <td>{{ row[0] }}</td>
+                                <td><strong>{{ row[2] }}</strong></td>
+                                <td>
+                                    <span class="type-badge type-{{ row[3].lower() }}">
+                                        {% if row[3] == 'Sequence' %}
+                                            <i class="fas fa-crown"></i>
+                                        {% elif row[3] == 'Assist' %}
+                                            <i class="fas fa-handshake"></i>
+                                        {% elif row[3] == 'Block' %}
+                                            <i class="fas fa-shield-alt"></i>
+                                        {% endif %}
+                                        {{ row[3] }}
+                                    </span>
+                                </td>
+                            </tr>
                             {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody id="lancelot_data">
-                        {% for row in data %}
-                        <tr data-date="{{ row[0] }}" data-time="{{ row[1] }}" data-name="{{ row[2] }}" data-type="{{ row[3] }}">
-                            <td>{{ row[0] }}</td>
-                            <td>{{ row[1] }}</td>
-                            <td><strong>{{ row[2] }}</strong></td>
-                            <td>
-                                <span class="type-badge type-{{ row[3].lower() }}">
-                                    {% if row[3] == 'Sequence' %}
-                                        <i class="fas fa-crown"></i>
-                                    {% elif row[3] == 'Assist' %}
-                                        <i class="fas fa-hands-helping"></i>
-                                    {% elif row[3] == 'Block' %}
-                                        <i class="fas fa-shield-alt"></i>
-                                    {% endif %}
-                                    {{ row[3] }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -492,42 +142,37 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
 
     <script>
-        // Function to get the current time
         function getCurrentTime() {
             const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
+            const hours   = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
             return `${hours}:${minutes}:${seconds}`;
         }
 
-        // Function to get the current date
         function getCurrentDate() {
             const now = new Date();
-            const year = now.getFullYear();
+            const year  = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
+            const day   = String(now.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
 
-        // Populate the input fields with current date and time
         document.getElementById('date').value = getCurrentDate();
         document.getElementById('time').value = getCurrentTime();
 
-        // Update time every second
         setInterval(() => {
             document.getElementById('time').value = getCurrentTime();
         }, 1000);
 
         $(document).ready(function() {
-            // Initialize DataTable
             $('#lancelot').DataTable({
                 responsive: true,
                 pageLength: 15,
-                order: [[0, 'desc'], [1, 'desc']], // Sort by date and time descending
+                order: [[0, 'desc']],
                 language: {
                     search: "Search entries:",
-                    lengthMenu: "Show _MENU_ entries per page",
+                    lengthMenu: "Show _MENU_ entries",
                     info: "Showing _START_ to _END_ of _TOTAL_ entries",
                     paginate: {
                         first: "First",
@@ -538,49 +183,29 @@
                 }
             });
 
-            // Table row click handler
+            // Row click — use data attributes so indices don't matter
             $('#lancelot tbody').on('click', 'tr', function() {
-                var cells = $(this).find('td');
-                var date = cells.eq(0).text();
-                var time = cells.eq(1).text();
-                var name = cells.eq(2).text();
-                var type = cells.eq(3).find('.type-badge').text().trim();
+                $(this).toggleClass('selected');
 
-                // Remove icons from type
-                type = type.replace(/[🤝🛡️🏆]/g, '').trim();
-
-                // Send data via axios
                 axios.post('/send-data', {
-                    date: date,
-                    time: time,
-                    name: name,
-                    type: type
+                    date: $(this).data('date'),
+                    time: $(this).data('time'),
+                    name: $(this).data('name'),
+                    type: $(this).data('type')
                 })
                 .then(function(response) {
                     console.log('Data sent successfully:', response.data);
-                    // Add visual feedback
-                    $(this).addClass('table-success').delay(1000).queue(function(next) {
-                        $(this).removeClass('table-success');
-                        next();
-                    });
                 })
                 .catch(function(error) {
                     console.error('Error sending data:', error);
-                    // Add error feedback
-                    $(this).addClass('table-danger').delay(1000).queue(function(next) {
-                        $(this).removeClass('table-danger');
-                        next();
-                    });
                 });
             });
 
-            // Form submission enhancement
-            $('form').on('submit', function(e) {
+            $('form').on('submit', function() {
                 var submitBtn = $(this).find('.submit-btn');
                 submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Submitting...');
                 submitBtn.prop('disabled', true);
 
-                // Re-enable after 2 seconds (adjust as needed)
                 setTimeout(() => {
                     submitBtn.html('<i class="fas fa-save"></i> Submit Entry');
                     submitBtn.prop('disabled', false);
