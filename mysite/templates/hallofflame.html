@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hall of Shame - Sequence Game</title>
+    <title>Hall of Flame - Sequence Game</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='hallofshame.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='hallofflame.css') }}">
 </head>
 <body>
     <div class="main-container">
@@ -18,22 +18,22 @@
                 <a href="{{ url_for('halloffame') }}" class="nav-btn">
                     <i class="fas fa-chess-queen"></i> Hall of Fame
                 </a>
-                <a href="{{ url_for('hallofflame') }}" class="nav-btn">
-                    <i class="fas fa-fire"></i> Hall of Flame
+                <a href="{{ url_for('hallofshame') }}" class="nav-btn">
+                    <i class="fas fa-chess-pawn"></i> Hall of Shame
                 </a>
                 <a href="{{ url_for('logout') }}" class="nav-btn">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
-            <h1><i class="fas fa-skull-crossbones"></i> Hall of Shame</h1>
-            <p class="subtitle">The ones who'd rather forget</p>
+            <h1><i class="fas fa-fire"></i> Hall of Flame</h1>
+            <p class="subtitle">Clutch plays worth remembering</p>
         </div>
 
         <div class="content">
             <!-- Quarter Dropdown -->
             <div class="quarter-bar">
                 <label for="quarterSelect">Quarter</label>
-                <select class="quarter-select" id="quarterSelect" onchange="window.location.href='{{ url_for('hallofshame') }}?quarter='+this.value">
+                <select class="quarter-select" id="quarterSelect" onchange="window.location.href='{{ url_for('hallofflame') }}?quarter='+this.value">
                     {% for quarter in available_quarters %}
                     <option value="{{ quarter }}" {% if quarter == selected_quarter %}selected{% endif %}>
                         {{ quarter[:4] }} {{ quarter[4:] }}
@@ -43,7 +43,7 @@
                 </select>
             </div>
 
-            {% set type_keys = shame_config.keys() | list %}
+            {% set type_keys = flame_config.keys() | list %}
             {% set has_any = namespace(value=false) %}
             {% for t in type_keys %}
                 {% set key = t.lower().replace(' ', '_') %}
@@ -63,12 +63,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for type_key, meta in shame_config.items() %}
+                        {% for type_key, meta in flame_config.items() %}
                         {% set key = type_key.lower().replace(' ', '_') %}
                         {% set rows = quarters_data[selected_quarter][key] %}
                         {% if rows is defined and not rows.empty %}
                         <tr class="category-row">
-                            <td colspan="3"><i class="fas fa-skull-crossbones"></i> {{ meta.display }}</td>
+                            <td colspan="3"><i class="fas fa-fire"></i> {{ meta.display }}</td>
                         </tr>
                         {% for index, row in rows.head(3).iterrows() %}
                         <tr class="data-row">
@@ -85,9 +85,9 @@
             {% else %}
             <div class="table-container">
                 <div class="empty-state">
-                    <i class="fas fa-skull-crossbones"></i>
+                    <i class="fas fa-fire"></i>
                     <h3>No data available</h3>
-                    <p>No shame entries recorded for this period</p>
+                    <p>No flame entries recorded for this period</p>
                 </div>
             </div>
             {% endif %}

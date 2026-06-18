@@ -23,6 +23,9 @@
                     <a href="{{ url_for('hallofshame') }}" class="nav-btn">
                         <i class="fas fa-chess-pawn"></i> Hall of Shame
                     </a>
+                    <a href="{{ url_for('hallofflame') }}" class="nav-btn">
+                        <i class="fas fa-fire"></i> Hall of Flame
+                    </a>
                     <a href="{{ url_for('logout') }}" class="nav-btn">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
@@ -65,11 +68,9 @@
                             <option value="Daniel">Daniel</option>
                             <option value="Edward">Edward</option>
                             <option value="Howard">Howard</option>
-                            <option value="Jaemo">Jaemo</option>
                             <option value="John">John</option>
                             <option value="Jose">Jose</option>
                             <option value="Kenji">Kenji</option>
-                            <option value="Larah">Larah</option>
                             <option value="Maya">Maya</option>
                             <option value="Mel">Mel</option>
                             <option value="Nishant">Nishant</option>
@@ -82,9 +83,19 @@
                         <label for="type"><i class="fas fa-tag"></i> Action Type</label>
                         <select name="type" id="type" required>
                             <option value="">Select Type</option>
-                            <option value="Assist">Assist</option>
-                            <option value="Block">Block</option>
-                            <option value="Sequence">Sequence</option>
+                            <optgroup label="Hall of Fame">
+                                <option value="Sequence" title="Completing a sequence">Finish</option>
+                                <option value="Block" title="Stopping an opponent's sequence">Block</option>
+                                <option value="Assist" title="Setting up a teammate's finish">Assist</option>
+                            </optgroup>
+                            <optgroup label="Hall of Shame">
+                                <option value="Misfire" title="A bad chip toss that disturbs the board (scattered chips, bumped pieces, knocked-off spots)">Misfire</option>
+                                <option value="Tunnel Vision" title="Only seeing one path: removing/playing for a single option when a better play (e.g. blocking two threats) was available but unseen">Tunnel Vision</option>
+                            </optgroup>
+                            <optgroup label="Hall of Flame">
+                                <option value="Bullseye" title="A perfect chip toss, landed clean and dead center">Bullseye</option>
+                                <option value="20-20 Vision" title="Playing the path that turned out to matter (e.g. choosing to remove for the assist over blocking, and it pays off when a teammate had the exact finishing card)">20-20 Vision</option>
+                            </optgroup>
                         </select>
                     </div>
 

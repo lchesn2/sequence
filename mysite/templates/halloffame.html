@@ -16,7 +16,10 @@
                     <i class="fas fa-home"></i> Home
                 </a>
                 <a href="{{ url_for('hallofshame') }}" class="nav-btn">
-                        <i class="fas fa-chess-pawn"></i> Hall of Shame
+                    <i class="fas fa-chess-pawn"></i> Hall of Shame
+                </a>
+                <a href="{{ url_for('hallofflame') }}" class="nav-btn">
+                    <i class="fas fa-fire"></i> Hall of Flame
                 </a>
                 <a href="{{ url_for('logout') }}" class="nav-btn">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -50,6 +53,7 @@
             {% set seq = quarters_data[selected_quarter]['sequence'] %}
             {% set blk = quarters_data[selected_quarter]['block'] %}
             {% set ast = quarters_data[selected_quarter]['assist'] %}
+
             {% set has_any = (seq is defined and not seq.empty) or (blk is defined and not blk.empty) or (ast is defined and not ast.empty) %}
 
             {% if has_any %}
@@ -63,10 +67,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Sequence -->
+                        <!-- Finish (Sequence) -->
                         {% if seq is defined and not seq.empty %}
                         <tr class="category-row">
-                            <td colspan="3"><i class="fas fa-chess-queen"></i> Sequence</td>
+                            <td colspan="3"><i class="fas fa-chess-queen"></i> Finish</td>
                         </tr>
                         {% for index, row in seq.head(3).iterrows() %}
                         <tr class="data-row">
