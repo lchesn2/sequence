@@ -7,6 +7,8 @@ import secrets
 import os
 from threading import Lock
 
+GAMES_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'games.csv')
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 
@@ -111,14 +113,11 @@ def _backfill_category(df):
 
 def gen_all_game_df():
     try:
-        ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type', 'category', 'office'])
-        game_df = pd.read_csv('./games.csv')
+        ensure_csv_exists(GAMES_CSV, ['date', 'time', 'team', 'name', 'card', 'type', 'category', 'office'])
+        game_df = pd.read_csv(GAMES_CSV)
         game_df = _backfill_category(game_df)
         game_df = _backfill_office(game_df)
         game_df['date'] = pd.to_datetime(game_df['date'], errors='coerce')
-
-        cutoff_date = pd.to_datetime('2025-06-25')
-        game_df = game_df[game_df['date'] >= cutoff_date]
 
         return game_df.sort_values(by=['type', 'date', 'time'], ascending=[True, False, True]).reset_index(drop=True)
     except Exception as e:
@@ -180,13 +179,11 @@ def get_available_quarters(df):
     return quarters
 
 def load_games_df(office=None):
-    ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type', 'category', 'office'])
-    df = pd.read_csv('./games.csv')
+    ensure_csv_exists(GAMES_CSV, ['date', 'time', 'team', 'name', 'card', 'type', 'category', 'office'])
+    df = pd.read_csv(GAMES_CSV)
     df = _backfill_category(df)
     df = _backfill_office(df)
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
-    cutoff_date = pd.to_datetime('2025-06-25')
-    df = df[df['date'] >= cutoff_date]
     if office:
         df = df[df['office'] == office]
     return df
@@ -327,7 +324,7 @@ def submit_form():
             game_df = pd.concat([game_df, pd.DataFrame([new_row])], ignore_index=True)
             game_df['date'] = pd.to_datetime(game_df['date'])
             game_df['date'] = game_df['date'].dt.date
-            game_df.to_csv('games.csv', index=False)
+            game_df.to_csv(GAMES_CSV, index=False)
 
             # Refresh dataframes
             game_df = gen_all_game_df()
