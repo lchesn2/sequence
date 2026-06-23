@@ -7,6 +7,8 @@
     --accent-gold: #c9a961;
     --accent-blue: #5bc0be;
     --success-green: #2d6a4f;
+    --shame-red: #c0392b;
+    --flame-cyan: #00b4d8;
 }
 
 * {
@@ -100,6 +102,29 @@ body {
 .content {
     padding: 40px;
     background: var(--off-white);
+}
+
+/* --- Admin reminder banner --- */
+.tip-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #fffbf0;
+    border: 1px solid #e8d5a0;
+    border-left: 4px solid var(--accent-gold);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 0.88rem;
+    color: var(--navy-dark);
+    line-height: 1.5;
+}
+
+.tip-banner i {
+    color: var(--accent-gold);
+    font-size: 1rem;
+    margin-top: 2px;
+    flex-shrink: 0;
 }
 
 /* --- Shared card box --- */
@@ -281,6 +306,18 @@ body {
 .type-block {
     background: var(--navy-light);
     color: var(--off-white);
+}
+
+.type-misfire,
+.type-tunnel-vision {
+    background: var(--shame-red);
+    color: white;
+}
+
+.type-bullseye,
+.type-20-20-vision {
+    background: var(--flame-cyan);
+    color: white;
 }
 
 /* --- DataTables overrides --- */

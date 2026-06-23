@@ -41,6 +41,12 @@
                 <h3><i class="fas fa-chess"></i> Last Finisher: {{ nxtTurn }}</h3>
             </div>
 
+            <!-- Reminder -->
+            <div class="tip-banner">
+                <i class="fas fa-lightbulb"></i>
+                <span>Log <strong>Shame</strong> plays too — <em>Misfire</em> (bad chip toss) &amp; <em>Tunnel Vision</em> (missed a better move). And <strong>Flame</strong> plays — <em>Bullseye</em> (perfect toss) &amp; <em>20-20 Vision</em> (called the right path).</span>
+            </div>
+
             <!-- Add New Entry -->
             <div class="form-section">
                 <div class="section-header">
@@ -115,13 +121,21 @@
                                 <td>{{ row[0] }}</td>
                                 <td><strong>{{ row[1] }}</strong></td>
                                 <td>
-                                    <span class="type-badge type-{{ row[2].lower() }}">
+                                    <span class="type-badge type-{{ row[2].lower().replace(' ', '-') }}">
                                         {% if row[2] == 'Sequence' %}
                                             <i class="fas fa-chess-queen"></i>
                                         {% elif row[2] == 'Assist' %}
                                             <i class="fas fa-chess-rook"></i>
                                         {% elif row[2] == 'Block' %}
                                             <i class="fas fa-chess-bishop"></i>
+                                        {% elif row[2] == 'Misfire' %}
+                                            <i class="fas fa-bomb"></i>
+                                        {% elif row[2] == 'Tunnel Vision' %}
+                                            <i class="fas fa-eye-slash"></i>
+                                        {% elif row[2] == 'Bullseye' %}
+                                            <i class="fas fa-bullseye"></i>
+                                        {% elif row[2] == '20-20 Vision' %}
+                                            <i class="fas fa-eye"></i>
                                         {% endif %}
                                         {{ row[2] }}
                                     </span>
