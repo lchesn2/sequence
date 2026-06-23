@@ -267,12 +267,14 @@ def dashboard():
 
         # Filter today's games to this user's office
         office_df = game_df[game_df['office'] == get_active_office()]
-        todays_games = office_df[office_df['date'].dt.date == today.date()][['date', 'name', 'type']]
+        todays_games = office_df[office_df['date'].dt.date == today.date()][['date', 'time', 'name', 'type']].copy()
 
         # Find the most recent player in this office
         last_player = get_last_player(office_df)
 
-        data = todays_games.values.tolist()
+        todays_games['timestamp'] = todays_games['date'].dt.strftime('%Y-%m-%d') + ' ' + todays_games['time'].astype(str)
+        todays_games = todays_games.sort_values('timestamp', ascending=False)
+        data = todays_games[['timestamp', 'name', 'type']].values.tolist()
         office_players = OFFICE_PLAYERS.get(get_active_office(), [])
 
         if current_user.role == 'admin':
