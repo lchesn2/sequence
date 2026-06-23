@@ -10,6 +10,23 @@ from threading import Lock
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 
+CATEGORY_CONFIG = {
+    'Fame': {
+        'Sequence':     {'display': 'Finish',        'description': 'Completing a sequence'},
+        'Block':        {'display': 'Block',         'description': "Stopping an opponent's sequence"},
+        'Assist':       {'display': 'Assist',        'description': "Setting up a teammate's finish"},
+    },
+    'Shame': {
+        'Misfire':        {'display': 'Misfire',       'description': 'A bad chip toss that disturbs the board (scattered chips, bumped pieces, knocked-off spots)'},
+        'Tunnel Vision':  {'display': 'Tunnel Vision', 'description': 'Only seeing one path: removing/playing for a single option when a better play (e.g. blocking two threats) was available but unseen'},
+    },
+    'Flame': {
+        'Bullseye':     {'display': 'Bullseye',     'description': 'A perfect chip toss, landed clean and dead center'},
+        '20-20 Vision': {'display': '20-20 Vision', 'description': 'Playing the path that turned out to matter (e.g. choosing to remove for the assist over blocking, and it pays off when a teammate had the exact finishing card)'},
+    },
+}
+TYPE_TO_CATEGORY = {t: cat for cat, types in CATEGORY_CONFIG.items() for t in types}
+
 # Initialize login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -52,25 +69,32 @@ users = {
 }
 
 def ensure_csv_exists(filename, default_columns):
-    """Ensure CSV file exists with proper headers"""
     if not os.path.exists(filename):
         pd.DataFrame(columns=default_columns).to_csv(filename, index=False)
 
+def _backfill_category(df):
+    """Backfill missing category values using TYPE_TO_CATEGORY; defaults to Fame."""
+    if 'category' not in df.columns:
+        df['category'] = df['type'].map(TYPE_TO_CATEGORY).fillna('Fame')
+    else:
+        df['category'] = df['category'].where(df['category'].notna() & (df['category'] != ''),
+                                               df['type'].map(TYPE_TO_CATEGORY).fillna('Fame'))
+    return df
+
 def gen_all_game_df():
-    """Generate games dataframe with error handling, filtered from 2025-06-25 onwards"""
     try:
-        ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type'])
+        ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type', 'category'])
         game_df = pd.read_csv('./games.csv')
+        game_df = _backfill_category(game_df)
         game_df['date'] = pd.to_datetime(game_df['date'], errors='coerce')
 
-        # Filter data from 2025-06-25 onwards
         cutoff_date = pd.to_datetime('2025-06-25')
         game_df = game_df[game_df['date'] >= cutoff_date]
 
         return game_df.sort_values(by=['type', 'date', 'time'], ascending=[True, False, True]).reset_index(drop=True)
     except Exception as e:
         print(f"Error loading game data: {e}")
-        return pd.DataFrame(columns=['date', 'time', 'team', 'name', 'card', 'type'])
+        return pd.DataFrame(columns=['date', 'time', 'team', 'name', 'card', 'type', 'category'])
 
 def get_last_player(df):
     """Get the most recent player by date + time descending"""
@@ -127,43 +151,35 @@ def get_available_quarters(df):
     return quarters
 
 def load_games_df():
-    """Load games CSV, parse dates, apply cutoff filter. Shared by all routes that read historical data."""
-    ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type'])
+    ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type', 'category'])
     df = pd.read_csv('./games.csv')
+    df = _backfill_category(df)
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     cutoff_date = pd.to_datetime('2025-06-25')
     return df[df['date'] >= cutoff_date]
 
-def calculate_quarterly_stats(df, quarter='2025Q3'):
-    """Calculate statistics for a specific quarter or all time"""
+def calculate_category_stats(df, category, quarter='2025Q3'):
+    """Calculate per-type counts for a given category and quarter (or ALL)."""
+    type_keys = list(CATEGORY_CONFIG[category].keys())
+    empty = {t.lower().replace(' ', '_'): pd.DataFrame(columns=['name', 'TotalFinishes']) for t in type_keys}
+
     if df.empty:
-        return {
-            'block': pd.DataFrame(columns=['name', 'TotalFinishes']),
-            'assist': pd.DataFrame(columns=['name', 'TotalFinishes']),
-            'sequence': pd.DataFrame(columns=['name', 'TotalFinishes'])
-        }
-    
-    # Filter by quarter if not 'ALL'
+        return empty
+
     if quarter != 'ALL':
         start_date, end_date = get_quarter_date_range(quarter)
         if start_date and end_date:
-            df_filtered = df[(df['date'] >= start_date) & (df['date'] <= end_date)]
-        else:
-            df_filtered = df
-    else:
-        df_filtered = df
-    
-    # Calculate stats for each type
+            df = df[(df['date'] >= start_date) & (df['date'] <= end_date)]
+
     stats = {}
-    for game_type in ['Block', 'Assist', 'Sequence']:
-        type_df = df_filtered[df_filtered['type'] == game_type]
+    for game_type in type_keys:
+        key = game_type.lower().replace(' ', '_')
+        type_df = df[df['type'] == game_type]
         if not type_df.empty:
-            type_stats = type_df.groupby(['name']).size().reset_index(name='TotalFinishes')
-            type_stats = type_stats.sort_values(by=['TotalFinishes'], ascending=[False]).reset_index(drop=True)
-            stats[game_type.lower()] = type_stats
+            type_stats = type_df.groupby('name').size().reset_index(name='TotalFinishes')
+            stats[key] = type_stats.sort_values('TotalFinishes', ascending=False).reset_index(drop=True)
         else:
-            stats[game_type.lower()] = pd.DataFrame(columns=['name', 'TotalFinishes'])
-    
+            stats[key] = pd.DataFrame(columns=['name', 'TotalFinishes'])
     return stats
 
 # Initialize global dataframe
@@ -240,13 +256,15 @@ def submit_form():
             flash('All fields are required', 'error')
             return redirect(url_for('dashboard'))
 
+        category = TYPE_TO_CATEGORY.get(game_type, 'Fame')
         new_row = {
             'date': date,
             'time': time,
             'team': '',
             'name': name,
             'card': '',
-            'type': game_type
+            'type': game_type,
+            'category': category,
         }
 
         with lock:
@@ -274,10 +292,10 @@ def halloffame():
         default_quarter = available_quarters[-1] if available_quarters else '2025Q3'
         selected_quarter = request.args.get('quarter', default_quarter)
 
-        # Calculate stats for all available quarters plus 'ALL'
+        fame_df = df[df['category'] == 'Fame']
         quarters_data = {}
         for quarter in available_quarters + ['ALL']:
-            quarters_data[quarter] = calculate_quarterly_stats(df, quarter)
+            quarters_data[quarter] = calculate_category_stats(fame_df, 'Fame', quarter)
 
         # Current quarter info (PST)
         pst = pytz.timezone('US/Pacific')
@@ -306,7 +324,8 @@ def halloffame():
                              available_quarters=available_quarters,
                              selected_quarter=selected_quarter,
                              current_quarter_label=current_quarter_label,
-                             days_remaining=days_remaining)
+                             days_remaining=days_remaining,
+                             fame_config=CATEGORY_CONFIG['Fame'])
     except Exception as e:
         flash(f'Error loading hall of fame: {str(e)}', 'error')
         print(f"Hall of fame error: {e}")
@@ -318,16 +337,46 @@ def hallofshame():
     try:
         df = load_games_df()
         available_quarters = get_available_quarters(df)
-
         default_quarter = available_quarters[-1] if available_quarters else '2025Q3'
         selected_quarter = request.args.get('quarter', default_quarter)
 
+        shame_df = df[df['category'] == 'Shame']
+        quarters_data = {}
+        for quarter in available_quarters + ['ALL']:
+            quarters_data[quarter] = calculate_category_stats(shame_df, 'Shame', quarter)
+
         return render_template('hallofshame.html',
+                             quarters_data=quarters_data,
                              available_quarters=available_quarters,
-                             selected_quarter=selected_quarter)
+                             selected_quarter=selected_quarter,
+                             shame_config=CATEGORY_CONFIG['Shame'])
     except Exception as e:
         flash(f'Error loading hall of shame: {str(e)}', 'error')
         print(f"Hall of shame error: {e}")
+        return redirect(url_for('dashboard'))
+
+@app.route('/hallofflame')
+@login_required
+def hallofflame():
+    try:
+        df = load_games_df()
+        available_quarters = get_available_quarters(df)
+        default_quarter = available_quarters[-1] if available_quarters else '2025Q3'
+        selected_quarter = request.args.get('quarter', default_quarter)
+
+        flame_df = df[df['category'] == 'Flame']
+        quarters_data = {}
+        for quarter in available_quarters + ['ALL']:
+            quarters_data[quarter] = calculate_category_stats(flame_df, 'Flame', quarter)
+
+        return render_template('hallofflame.html',
+                             quarters_data=quarters_data,
+                             available_quarters=available_quarters,
+                             selected_quarter=selected_quarter,
+                             flame_config=CATEGORY_CONFIG['Flame'])
+    except Exception as e:
+        flash(f'Error loading hall of flame: {str(e)}', 'error')
+        print(f"Hall of flame error: {e}")
         return redirect(url_for('dashboard'))
 
 @app.route('/logout')
