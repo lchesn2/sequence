@@ -120,11 +120,62 @@ body {
     line-height: 1.5;
 }
 
-.tip-banner i {
+.tip-banner > i {
     color: var(--accent-gold);
     font-size: 1rem;
-    margin-top: 2px;
+    margin-top: 4px;
     flex-shrink: 0;
+}
+
+.tip-body {
+    flex: 1;
+}
+
+.tip-intro {
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+    color: var(--navy-dark);
+}
+
+.tip-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.tip-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+}
+
+.tip-shame { background: rgba(192, 57, 43, 0.08); border-left: 3px solid var(--shame-red); }
+.tip-flame { background: rgba(0, 180, 216, 0.08); border-left: 3px solid var(--flame-cyan); }
+
+.tip-hall {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.tip-shame .tip-hall { color: var(--shame-red); }
+.tip-flame .tip-hall { color: var(--flame-cyan); }
+
+.tip-hall i { margin-right: 4px; }
+
+.tip-type {
+    color: var(--navy-dark);
+    line-height: 1.4;
+}
+
+.tip-type em {
+    color: var(--navy-light);
+    font-style: italic;
 }
 
 /* --- Shared card box --- */
