@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Office - Sequence Game</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --navy-dark: #0a1128;
+            --navy-medium: #1c2541;
+            --navy-light: #3a506b;
+            --off-white: #f8f9fa;
+            --off-white-dark: #e9ecef;
+            --accent-gold: #c9a961;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-medium) 50%, var(--navy-light) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--navy-dark);
+        }
+
+        .card {
+            background: var(--off-white);
+            padding: 50px 40px;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            border: 1px solid rgba(201, 169, 97, 0.2);
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .icon {
+            font-size: 2.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--navy-dark);
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            color: var(--navy-light);
+            font-size: 0.95rem;
+            margin-bottom: 36px;
+        }
+
+        .office-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 16px 24px;
+            margin-bottom: 14px;
+            background: var(--navy-medium);
+            color: var(--off-white);
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+
+        .office-btn:hover {
+            background: var(--navy-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(10, 17, 40, 0.25);
+        }
+
+        .office-btn i { font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon"><i class="fas fa-building"></i></div>
+        <h1>Welcome, {{ name }}</h1>
+        <p class="subtitle">Which office are you entering today?</p>
+
+        {% for office in offices %}
+        <form action="{{ url_for('select_office') }}" method="post">
+            <input type="hidden" name="office" value="{{ office }}">
+            <button type="submit" class="office-btn">
+                <i class="fas fa-chess-board"></i> {{ office }}
+            </button>
+        </form>
+        {% endfor %}
+    </div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from flask import Flask, flash, render_template, redirect, url_for, request
+from flask import Flask, flash, render_template, redirect, url_for, request, session
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user, UserMixin
 import datetime
 import pytz
@@ -36,9 +36,10 @@ login_manager.login_view = "login"
 lock = Lock()
 
 class User(UserMixin):
-    def __init__(self, username, role):
+    def __init__(self, username, role, offices):
         self.username = username
         self.role = role
+        self.offices = offices  # list; active office stored in session
 
     def get_id(self):
         return self.username
@@ -46,31 +47,58 @@ class User(UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     if user_id in users:
-        return User(user_id, users[user_id]['role'])
+        return User(user_id, users[user_id]['role'], users[user_id]['offices'])
     return None
 
 users = {
-    'Larah': {'password': 'newton', 'role': 'admin'},
-    'John': {'password': 'joh', 'role': 'user'},
-    'Adam': {'password': 'ada', 'role': 'user'},
-    'Behring': {'password': 'beh', 'role': 'user'},
-    'Daniel': {'password': 'dan', 'role': 'user'},
-    'Howard': {'password': 'how', 'role': 'user'},
-    'Jose': {'password': 'jos', 'role': 'user'},
-    'Jaemo': {'password': 'jae', 'role': 'user'},
-    'Kenji': {'password': 'ken', 'role': 'admin'},
-    'Maya': {'password': 'may', 'role': 'admin'},
-    'Nishant': {'password': 'nis', 'role': 'admin'},
-    'Edward': {'password': 'edw', 'role': 'admin'},
-    'Pratishta': {'password': 'pra', 'role': 'admin'},
-    'Russell': {'password': 'rus', 'role': 'user'},
-    'Mel': {'password': 'mel', 'role': 'user'},
-    'Choi':{'password': 'cho', 'role':'admin'}
+    # ADP office
+    'Jaemo':     {'password': 'jae', 'role': 'user',  'offices': ['ADP']},
+    'John':      {'password': 'joh', 'role': 'user',  'offices': ['ADP']},
+    'Adam':      {'password': 'ada', 'role': 'user',  'offices': ['ADP']},
+    'Behring':   {'password': 'beh', 'role': 'user',  'offices': ['ADP']},
+    'Daniel':    {'password': 'dan', 'role': 'user',  'offices': ['ADP']},
+    'Howard':    {'password': 'how', 'role': 'user',  'offices': ['ADP']},
+    'Jose':      {'password': 'jos', 'role': 'user',  'offices': ['ADP']},
+    'Russell':   {'password': 'rus', 'role': 'user',  'offices': ['ADP']},
+    'Mel':       {'password': 'mel', 'role': 'user',  'offices': ['ADP']},
+    'Kenji':     {'password': 'ken', 'role': 'admin', 'offices': ['ADP']},
+    'Maya':      {'password': 'may', 'role': 'admin', 'offices': ['ADP']},
+    'Nishant':   {'password': 'nis', 'role': 'admin', 'offices': ['ADP']},
+    'Edward':    {'password': 'edw', 'role': 'admin', 'offices': ['ADP']},
+    'Pratishta': {'password': 'pra', 'role': 'admin', 'offices': ['ADP']},
+    'Choi':      {'password': 'cho', 'role': 'admin', 'offices': ['ADP']},
+    # Irwin office
+    'Kevin':  {'password': 'kev',    'role': 'admin', 'offices': ['Irwin']},
+    'Jazz':   {'password': 'jaz',    'role': 'admin', 'offices': ['Irwin']},
+    'Isaac':  {'password': 'isa',    'role': 'admin', 'offices': ['Irwin']},
+    'Mitch':  {'password': 'mit',    'role': 'user',  'offices': ['Irwin']},
+    'Mike':   {'password': 'mik',    'role': 'user',  'offices': ['Irwin']},
+    'Jason':  {'password': 'jas',    'role': 'user',  'offices': ['Irwin']},
+    'Sherry': {'password': 'she',    'role': 'user',  'offices': ['Irwin']},
+    'Landon': {'password': 'lan',    'role': 'user',  'offices': ['Irwin']},
+    'Ryan':   {'password': 'rya',    'role': 'user',  'offices': ['Irwin']},
+    'Brent':  {'password': 'bre',    'role': 'user',  'offices': ['Irwin']},
+    # Multi-office
+    'Larah':  {'password': 'newton', 'role': 'admin', 'offices': ['ADP', 'Irwin']},
+}
+
+OFFICE_PLAYERS = {
+    'ADP':   ['Adam', 'Behring', 'Choi', 'Daniel', 'Edward', 'Howard',
+              'John', 'Jose', 'Kenji', 'Maya', 'Mel', 'Nishant', 'Pratishta', 'Russell'],
+    'Irwin': ['Brent', 'Isaac', 'Jason', 'Jazz', 'Kevin', 'Landon',
+              'Larah', 'Mike', 'Mitch', 'Ryan', 'Sherry'],
 }
 
 def ensure_csv_exists(filename, default_columns):
     if not os.path.exists(filename):
         pd.DataFrame(columns=default_columns).to_csv(filename, index=False)
+
+def _backfill_office(df):
+    if 'office' not in df.columns:
+        df['office'] = 'ADP'
+    else:
+        df['office'] = df['office'].where(df['office'].notna() & (df['office'] != ''), 'ADP')
+    return df
 
 def _backfill_category(df):
     """Backfill missing category values using TYPE_TO_CATEGORY; defaults to Fame."""
@@ -83,9 +111,10 @@ def _backfill_category(df):
 
 def gen_all_game_df():
     try:
-        ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type', 'category'])
+        ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type', 'category', 'office'])
         game_df = pd.read_csv('./games.csv')
         game_df = _backfill_category(game_df)
+        game_df = _backfill_office(game_df)
         game_df['date'] = pd.to_datetime(game_df['date'], errors='coerce')
 
         cutoff_date = pd.to_datetime('2025-06-25')
@@ -94,7 +123,7 @@ def gen_all_game_df():
         return game_df.sort_values(by=['type', 'date', 'time'], ascending=[True, False, True]).reset_index(drop=True)
     except Exception as e:
         print(f"Error loading game data: {e}")
-        return pd.DataFrame(columns=['date', 'time', 'team', 'name', 'card', 'type', 'category'])
+        return pd.DataFrame(columns=['date', 'time', 'team', 'name', 'card', 'type', 'category', 'office'])
 
 def get_last_player(df):
     """Get the most recent player by date + time descending"""
@@ -150,13 +179,17 @@ def get_available_quarters(df):
     
     return quarters
 
-def load_games_df():
-    ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type', 'category'])
+def load_games_df(office=None):
+    ensure_csv_exists('./games.csv', ['date', 'time', 'team', 'name', 'card', 'type', 'category', 'office'])
     df = pd.read_csv('./games.csv')
     df = _backfill_category(df)
+    df = _backfill_office(df)
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     cutoff_date = pd.to_datetime('2025-06-25')
-    return df[df['date'] >= cutoff_date]
+    df = df[df['date'] >= cutoff_date]
+    if office:
+        df = df[df['office'] == office]
+    return df
 
 def calculate_category_stats(df, category, quarter='2025Q3'):
     """Calculate per-type counts for a given category and quarter (or ALL)."""
@@ -182,6 +215,10 @@ def calculate_category_stats(df, category, quarter='2025Q3'):
             stats[key] = pd.DataFrame(columns=['name', 'TotalFinishes'])
     return stats
 
+def get_active_office():
+    """Return the office currently selected in session, defaulting to the user's first office."""
+    return session.get('office', current_user.offices[0])
+
 # Initialize global dataframe
 game_df = gen_all_game_df()
 
@@ -196,15 +233,30 @@ def login():
         password = request.form.get('password', '')
 
         if username in users and password == users[username]['password']:
-            user = User(username, users[username]['role'])
+            user = User(username, users[username]['role'], users[username]['offices'])
             login_user(user)
             flash(f'Welcome back, {username}!', 'success')
+            if len(user.offices) > 1:
+                return redirect(url_for('select_office'))
+            session['office'] = user.offices[0]
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password', 'error')
             return render_template('login.html')
 
     return render_template('login.html')
+
+@app.route('/select-office', methods=['GET', 'POST'])
+@login_required
+def select_office():
+    if request.method == 'POST':
+        office = request.form.get('office')
+        if office in current_user.offices:
+            session['office'] = office
+            return redirect(url_for('dashboard'))
+    return render_template('select_office.html',
+                           offices=current_user.offices,
+                           name=current_user.username)
 
 @app.route('/dashboard')
 @login_required
@@ -216,19 +268,22 @@ def dashboard():
         pst = pytz.timezone('US/Pacific')
         today = pd.to_datetime(datetime.datetime.now(pst).date())
 
-        # Filter today's games
-        todays_games = game_df[game_df['date'].dt.date == today.date()][['date', 'name', 'type']]
+        # Filter today's games to this user's office
+        office_df = game_df[game_df['office'] == get_active_office()]
+        todays_games = office_df[office_df['date'].dt.date == today.date()][['date', 'name', 'type']]
 
-        # Find the most recent player across all game types
-        last_player = get_last_player(game_df)
+        # Find the most recent player in this office
+        last_player = get_last_player(office_df)
 
         data = todays_games.values.tolist()
+        office_players = OFFICE_PLAYERS.get(get_active_office(), [])
 
         if current_user.role == 'admin':
             return render_template('admin.html',
                                  data=data,
                                  nxtTurn=last_player,
-                                 name=current_user.username)
+                                 name=current_user.username,
+                                 office_players=office_players)
         elif current_user.role == 'user':
             return render_template('user.html',
                                  data=data,
@@ -265,6 +320,7 @@ def submit_form():
             'card': '',
             'type': game_type,
             'category': category,
+            'office': get_active_office(),
         }
 
         with lock:
@@ -287,10 +343,12 @@ def submit_form():
 @login_required
 def halloffame():
     try:
-        df = load_games_df()
+        df = load_games_df(office=get_active_office())
         available_quarters = get_available_quarters(df)
-        default_quarter = available_quarters[-1] if available_quarters else '2025Q3'
+        default_quarter = available_quarters[-1] if available_quarters else 'ALL'
         selected_quarter = request.args.get('quarter', default_quarter)
+        if selected_quarter not in list(available_quarters) + ['ALL']:
+            selected_quarter = default_quarter
 
         fame_df = df[df['category'] == 'Fame']
         quarters_data = {}
@@ -335,10 +393,12 @@ def halloffame():
 @login_required
 def hallofshame():
     try:
-        df = load_games_df()
+        df = load_games_df(office=get_active_office())
         available_quarters = get_available_quarters(df)
-        default_quarter = available_quarters[-1] if available_quarters else '2025Q3'
+        default_quarter = available_quarters[-1] if available_quarters else 'ALL'
         selected_quarter = request.args.get('quarter', default_quarter)
+        if selected_quarter not in list(available_quarters) + ['ALL']:
+            selected_quarter = default_quarter
 
         shame_df = df[df['category'] == 'Shame']
         quarters_data = {}
@@ -359,10 +419,12 @@ def hallofshame():
 @login_required
 def hallofflame():
     try:
-        df = load_games_df()
+        df = load_games_df(office=get_active_office())
         available_quarters = get_available_quarters(df)
-        default_quarter = available_quarters[-1] if available_quarters else '2025Q3'
+        default_quarter = available_quarters[-1] if available_quarters else 'ALL'
         selected_quarter = request.args.get('quarter', default_quarter)
+        if selected_quarter not in list(available_quarters) + ['ALL']:
+            selected_quarter = default_quarter
 
         flame_df = df[df['category'] == 'Flame']
         quarters_data = {}

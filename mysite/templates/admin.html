@@ -62,20 +62,9 @@
                         <label for="name"><i class="fas fa-user"></i> Player Name</label>
                         <select name="name" id="name" required>
                             <option value="">Select Player</option>
-                            <option value="Adam">Adam</option>
-                            <option value="Behring">Behring</option>
-                            <option value="Choi">Choi</option>
-                            <option value="Daniel">Daniel</option>
-                            <option value="Edward">Edward</option>
-                            <option value="Howard">Howard</option>
-                            <option value="John">John</option>
-                            <option value="Jose">Jose</option>
-                            <option value="Kenji">Kenji</option>
-                            <option value="Maya">Maya</option>
-                            <option value="Mel">Mel</option>
-                            <option value="Nishant">Nishant</option>
-                            <option value="Pratishta">Pratishta</option>
-                            <option value="Russell">Russell</option>
+                            {% for player in office_players %}
+                            <option value="{{ player }}">{{ player }}</option>
+                            {% endfor %}
                         </select>
                     </div>
 
