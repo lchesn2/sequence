@@ -68,7 +68,10 @@
                         {% set rows = quarters_data[selected_quarter][key] %}
                         {% if rows is defined and not rows.empty %}
                         <tr class="category-row">
-                            <td colspan="3"><i class="fas fa-fire"></i> {{ meta.display }}</td>
+                            <td colspan="3">
+                                <i class="fas fa-fire"></i> {{ meta.display }}
+                                <span class="info-tip" data-tip="{{ meta.description }}"><i class="fas fa-circle-info"></i></span>
+                            </td>
                         </tr>
                         {% for index, row in rows.head(3).iterrows() %}
                         <tr class="data-row">

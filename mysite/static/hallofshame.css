@@ -249,3 +249,41 @@ table.hof-table .data-row:hover {
         justify-content: center;
     }
 }
+/* --- Info tooltip on category rows --- */
+.info-tip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+    cursor: default;
+    opacity: 0.75;
+    font-size: 0.82rem;
+    vertical-align: middle;
+}
+
+.info-tip::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 6px);
+    transform: translateX(-50%);
+    background: rgba(10, 17, 40, 0.95);
+    color: #f8f9fa;
+    font-size: 0.78rem;
+    font-weight: 400;
+    line-height: 1.4;
+    padding: 7px 11px;
+    border-radius: 6px;
+    white-space: normal;
+    width: 220px;
+    text-align: left;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    letter-spacing: 0;
+}
+
+.info-tip:hover { opacity: 1; }
+.info-tip:hover::after { opacity: 1; }
